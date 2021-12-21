@@ -1,0 +1,110 @@
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+      comment-id:
+        required: true
+        type: string
+      GITHUB_REPOSITORY:
+        required: true
+        type: string
+    secrets:
+      TELEGRAM_TOKEN:
+        required: true
+
+jobs:
+  shameWorkflow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+    - uses: hmarr/debug-action@v2
+
+    - uses: actions/checkout@v1
+      with:
+        ref: ${{ inputs.ref }}
+
+    - name: Cache compiler installations
+      uses: actions/cache@v2
+      with:
+        path: |
+          /home/runner/.solcx
+          /home/runner/.vvm
+        key: ${{ runner.os }}-woofy-compiler-cache-v1
+
+    - name: Setup node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+
+    - name: Install ganache
+      run: npm install -g ganache-cli@6.12.1
+
+    - name: Set up python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Restore pip cache
+      uses: actions/cache@v2
+      id: pip-cache
+      with:
+        path: |
+          /home/runner/.cache/pip/
+        key: ${{ runner.os }}-pip-v2-${{ hashFiles('**/requirements-dev.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-v2-${{ hashFiles('**/requirements-dev.txt') }}
+          ${{ runner.os }}-pip-v2-
+
+    - name: Install python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install wheel
+        pip install -r requirements-dev.txt
+
+    - name: delete .brownie/accounts after cache download
+      run: |
+        rm -rf ~/.brownie/accounts
+    
+    - name: Add network config
+      timeout-minutes: 1
+      run: |
+        brownie networks list true
+        cp network-config.yaml ~/.brownie/
+        brownie networks list true
+
+    - name: Brownie compile
+      timeout-minutes: 3
+      run: |
+        brownie compile
+
+    - name: Run Function
+      id: fn
+      timeout-minutes: 3
+      run: |
+        brownie run shame ci_alert --network eth-main-fork
+
+    - name: Read alert
+      id: alert
+      uses: juliangruber/read-file-action@v1
+      with:
+        path: /home/runner/alert.txt
+        trim: false
+
+    # - name: New TX Telegram Alert - multisig chat
+    #   uses: appleboy/telegram-action@master
+    #   with:
+    #     to: '-1001560526095'
+    #     token: ${{ secrets.TELEGRAM_TOKEN }}
+    #     format: markdown
+    #     message: |
+    #       ${{ steps.alert.outputs.content }}
+
+    - name: Add reaction
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        repository: ${{ inputs.GITHUB_REPOSITORY }}
+        comment-id: ${{ inputs.comment-id }}
+        reaction-type: hooray
