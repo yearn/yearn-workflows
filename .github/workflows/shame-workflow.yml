@@ -10,6 +10,9 @@ on:
       GITHUB_REPOSITORY:
         required: true
         type: string
+      TELEGRAM_CHAT_ID:
+        required: true
+        type: string
     secrets:
       TELEGRAM_TOKEN:
         required: true
@@ -92,14 +95,14 @@ jobs:
         path: /home/runner/alert.txt
         trim: false
 
-    # - name: New TX Telegram Alert - multisig chat
-    #   uses: appleboy/telegram-action@master
-    #   with:
-    #     to: '-1001560526095'
-    #     token: ${{ secrets.TELEGRAM_TOKEN }}
-    #     format: markdown
-    #     message: |
-    #       ${{ steps.alert.outputs.content }}
+    - name: New TX Telegram Alert
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ inputs.TELEGRAM_CHAT_ID }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        format: markdown
+        message: |
+          ${{ steps.alert.outputs.content }}
 
     - name: Add reaction
       uses: peter-evans/create-or-update-comment@v1
