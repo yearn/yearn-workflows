@@ -71,7 +71,7 @@ on:
         required: true
 
 jobs:
-  dispatchCommand:
+  roboanimalsWorkflow:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
