@@ -79,15 +79,11 @@ on:
     secrets:
       TELEGRAM_TOKEN:
         required: true
-      POLYGON_ALCHEMY_PROJECT_ID:
-        required: true
       POLYGONSCAN_TOKEN:
         required: true
       FTMSCAN_TOKEN:
         required: true
       ETHERSCAN_TOKEN:
-        required: true
-      WEB3_INFURA_PROJECT_ID:
         required: true
       PRIVATE_KEY:
         required: true
@@ -208,11 +204,9 @@ jobs:
       id: fn
       timeout-minutes: 45
       env:
-        POLYGON_ALCHEMY_PROJECT_ID: ${{ secrets.POLYGON_ALCHEMY_PROJECT_ID }}
         POLYGONSCAN_TOKEN: ${{ secrets.POLYGONSCAN_TOKEN }}
         FTMSCAN_TOKEN: ${{ secrets.FTMSCAN_TOKEN }}
         ETHERSCAN_TOKEN: ${{ secrets.ETHERSCAN_TOKEN }}
-        WEB3_INFURA_PROJECT_ID: ${{ secrets.WEB3_INFURA_PROJECT_ID }}
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         GITHUB_ACTION_SEND: ${{  inputs.send }}
       run: |
