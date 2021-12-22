@@ -49,6 +49,9 @@ on:
       github_run_id:
         required: true
         type: string
+      runs_on:
+        required: true
+        type: string
     secrets:
       TELEGRAM_TOKEN:
         required: true
@@ -69,7 +72,7 @@ on:
 
 jobs:
   roboanimalsWorkflow:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.runs_on }}
     timeout-minutes: 60
     steps:
     - uses: hmarr/debug-action@v2
