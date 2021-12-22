@@ -94,7 +94,7 @@ jobs:
         path: |
           /home/runner/.solcx
           /home/runner/.vvm
-        key: ${{ runner.os }}-${{ runner.name }}-compiler-cache-v2
+        key: ${{ runner.os }}-${{ inputs.runner_name }}-compiler-cache-v2
 
     - name: Setup node.js
       uses: actions/setup-node@v1
@@ -138,7 +138,7 @@ jobs:
         path: |
           /home/runner/.brownie
           !/home/runner/.brownie/accounts
-        key: ${{ runner.os }}-woofy-brownie-cache-v1
+        key: ${{ runner.os }}-${{ inputs.runner_name}}-brownie-cache-v1
         restore-keys: |
           ${{ runner.os }}-${{ inputs.runner_name}}-brownie-cache-v1
           ${{ runner.os }}-${{ inputs.runner_name}}-brownie-cache-*
