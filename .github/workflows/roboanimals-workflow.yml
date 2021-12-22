@@ -1,0 +1,358 @@
+name: Roboanimals workflow
+
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+      comment-id:
+        description: 'The comment-id of the slash command'
+        required: true
+      file:
+        description: 'The file to run (e.g. main, hydrate_ci_cache)'
+        required: true
+        default: 'main'
+      network:
+        description: 'The network (e.g. eth, bsc, matic, ftm)'
+        required: true
+        default: 'eth'
+      fn:
+        description: 'Brownie function to run'
+        required: true
+      send:
+        description: 'Set to true to sign the tx and send to gnosis'
+        required: false
+        default: 'false'
+      pull_request_number:
+        description: 'Set to the pull request number for this command dispatch'
+        required: true
+      delete-branch-after-send:
+        description: 'Set to true to delete the PR branch after running with send=true'
+        default: 'true'
+      pull_request_title:
+        required: true
+      pull_request_author:
+        required: false
+      pull_request_description:
+        default: 'Empty PR description 🤡'
+      github_repository:
+        required: true
+        type: string
+      group_telegram_chat_id:
+        required: true
+        type: string
+      annoncement_telegram_chat_id:
+        required: true
+        type: string
+      failure_telegram_chat_id:
+        required: true
+        type: string
+      github_run_id:
+        required: true
+        type: string
+      github_repository:
+        required: true
+        type: string
+    secrets:
+      TELEGRAM_TOKEN:
+        required: false
+        default: ""
+      POLYGON_ALCHEMY_PROJECT_ID:
+        required: false
+        default: ""
+      POLYGONSCAN_TOKEN:
+        required: false
+        default: ""
+      FTMSCAN_TOKEN:
+        required: false
+        default: ""
+      ETHERSCAN_TOKEN:
+        required: false
+        default: ""
+      WEB3_INFURA_PROJECT_ID:
+        required: false
+        default: false
+      PRIVATE_KEY:
+        required: false
+        default: false
+      GITHUB_TOKEN:
+        required: true
+
+
+jobs:
+  dispatchCommand:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+    - uses: hmarr/debug-action@v2
+
+    - uses: actions/checkout@v1
+      with:
+        ref: ${{ inputs.ref }}
+
+    - name: Create URL to the run output
+      id: vars
+      run: echo ::set-output name=run-url::https://github.com/${{inputs.github_repository}}/actions/runs/${{inputs.github_run_id}}
+
+    - name: Cache compiler installations
+      uses: actions/cache@v2
+      with:
+        path: |
+          /home/runner/.solcx
+          /home/runner/.vvm
+        key: ${{ runner.os }}-woofy-compiler-cache-v2
+
+    - name: Setup node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+
+    - name: Install ganache
+      run: npm install -g ganache-cli@6.12.1
+
+    - name: Set up python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+
+    - name: Restore pip cache
+      uses: actions/cache@v2
+      id: pip-cache
+      with:
+        path: |
+          /home/runner/.cache/pip/
+        key: ${{ runner.os }}-pip-v2-${{ hashFiles('**/requirements-dev.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-v2-${{ hashFiles('**/requirements-dev.txt') }}
+          ${{ runner.os }}-pip-v2-
+
+    - name: Install python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install wheel
+        pip install -r requirements-dev.txt
+
+    - name: Lock on send=true to avoid nonce race condition
+      if: ${{ inputs.send  == 'true' }}
+      uses: shogo82148/actions-mutex@v1
+      with:
+        key: send-${{ inputs.network }}
+
+    - name: cache brownie database
+      uses: actions/cache@v2
+      with:
+        path: |
+          /home/runner/.brownie
+          !/home/runner/.brownie/accounts
+        key: ${{ runner.os }}-woofy-brownie-cache-v1
+        restore-keys: |
+          ${{ runner.os }}-woofy-brownie-cache-v1
+          ${{ runner.os }}-woofy-brownie-cache-*
+          ${{ runner.os }}-woofy-brownie-cache
+
+    - name: delete .brownie/accounts after cache download
+      run: |
+        rm -rf ~/.brownie/accounts
+    
+    - name: Add network config
+      timeout-minutes: 1
+      run: |
+        brownie networks list true
+        cp network-config.yaml ~/.brownie/
+        brownie networks list true
+
+    - name: Run Function
+      id: fn
+      timeout-minutes: ${{ inputs.file == 'hydrate_ci_cache' && 60 || 5 }}
+      env:
+        POLYGON_ALCHEMY_PROJECT_ID: ${{ secrets.POLYGON_ALCHEMY_PROJECT_ID }}
+        POLYGONSCAN_TOKEN: ${{ secrets.POLYGONSCAN_TOKEN }}
+        FTMSCAN_TOKEN: ${{ secrets.FTMSCAN_TOKEN }}
+        ETHERSCAN_TOKEN: ${{ secrets.ETHERSCAN_TOKEN }}
+        WEB3_INFURA_PROJECT_ID: ${{ secrets.WEB3_INFURA_PROJECT_ID }}
+        PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        GITHUB_ACTION_SEND: ${{  inputs.send }}
+      run: |
+        python3 $GITHUB_WORKSPACE/ci/run_brownie.py brownie run ${{ inputs.file }} ${{ inputs.fn }} --network ${{ inputs.network }}-main-fork 1>output.txt 2>error.txt || EXIT_CODE=$?
+        echo "::set-output name=brownie-exit-code::$EXIT_CODE"
+        echo "::group:: Output"
+        cat output.txt
+        echo "::endgroup::"
+        echo "::group:: Error"
+        cat error.txt
+        echo "::endgroup::"
+        exit 0
+
+    - name: Set timeout
+      if: failure()
+      id: timeout
+      run: |
+        echo "::group:: Output"
+        cat output.txt
+        echo "::endgroup::"
+        echo "::group:: Error"
+        cat error.txt
+        echo "::endgroup::"
+        echo "::set-output name=brownie-timeout::true"
+
+    - name: Check failure
+      id: failcheck
+      run: |
+        echo "::group:: Output"
+        cat output.txt
+        echo "::endgroup::"
+        echo "::group:: Error"
+        cat error.txt
+        echo "::endgroup::"
+        exit ${{ steps.fn.outputs.brownie-exit-code}}
+
+    - name: Read nonce
+      if: ${{ inputs.send  == 'true' }}
+      id: nonce
+      uses: juliangruber/read-file-action@v1
+      with:
+        path: /home/runner/nonce.txt
+        trim: false
+
+    - name: Nonce fail check
+      if: ${{ failure() && steps.nonce.outcome == 'failure' }}
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        comment-id: ${{ inputs.comment-id }}
+        body: |
+          > Did not find nonce.txt. Did you run with send=true without actually posting the transaction at the end of your function? Use the @safe decorator above your function.
+
+    - name: Edit comment with error message
+      if: failure()
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        comment-id: ${{ inputs.comment-id }}
+        body: |
+          > Failure: check output ${{ steps.vars.outputs.run-url }}
+ 
+    - name: Edit comment with dry run message
+      if: ${{ inputs.send  == 'false' }}
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        comment-id: ${{ inputs.comment-id }}
+        body: |
+          > Dry run success: ${{ steps.vars.outputs.run-url }}
+          > Rerun the command with send=true to publish the TX to the safe
+    
+    - name: Set safe link
+      id: safe-link
+      run: |
+        if [ "${{inputs.network}}" = "ftm" ]
+        then 
+          echo "::set-output name=safe-link::https://safe.fantom.network/#/safes/0x72a34AbafAB09b15E7191822A679f28E067C4a16/transactions"
+        elif [ "${{inputs.network}}" = "matic" ]
+        then 
+          echo "::set-output name=safe-link::https://gnosis-safe.io/app/matic:0x6fb490DF3202a1b7e32765BCE47974133064C433/transactions/queue"
+        else
+          echo "::set-output name=safe-link::https://gnosis-safe.io/app/eth:0x16388463d60FFE0661Cf7F1f31a7D658aC790ff7/transactions/queue"
+        fi
+
+    - name: Edit comment with full run message
+      if: ${{ inputs.send  == 'true' }}
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        comment-id: ${{ inputs.comment-id }}
+        body: |
+          > TX with nonce ${{ steps.nonce.outputs.content }} successfully sent: ${{ steps.vars.outputs.run-url }}. 
+          > Find your queued TX at ${{ steps.safe-link.outputs.safe-link }}
+          > Your PR has been labeled with tag ${{inputs.network}} ${{ steps.nonce.outputs.content }}, which you can find here: https://github.com/yearn/strategist-ms/labels?q=${{ steps.nonce.outputs.content }}
+    
+    - name: Set PR url
+      id: pr-url
+      run: |
+        echo "::set-output name=pr-url::https://github.com/${{github.repository}}/pull/${{ inputs.pull_request_number }}/files"
+
+    - name: Create Telegram message
+      id: telegram-message
+      run: |
+          TELEGRAM_MESSAGE=$(cat << EOF
+          ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.safe-link.outputs.safe-link }}) \`${{ inputs.pull_request_title }}\`
+          Sender: ${{ inputs.pull_request_author }}
+          Description: \`${{ inputs.pull_request_description }}\`
+          Review [the code](${{ steps.pr-url.outputs.pr-url }}), verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ steps.safe-link.outputs.safe-link }})
+          EOF
+          )
+          echo "TELEGRAM_MESSAGE<<EOF" >> $GITHUB_ENV
+          echo "$TELEGRAM_MESSAGE" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+  
+    - name: New TX Telegram Alert - Robowoofy Alert Chat
+      if: ${{ inputs.send == 'true' }}
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ inputs.announcement_telegram_chat_id}}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        format: markdown
+        message: |
+          ${{ env.TELEGRAM_MESSAGE }}
+      continue-on-error: true
+
+    - name: New TX Telegram Alert - MultiSig Chat
+      if: ${{ inputs.send == 'true' }}
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ inputs.group_telegram_chat_id}}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        format: markdown
+        message: |
+          ${{ env.TELEGRAM_MESSAGE }}
+      continue-on-error: true
+
+    - uses: actions-ecosystem/action-add-labels@v1
+      if: ${{ inputs.send  == 'true' }}
+      with:
+        number: ${{ inputs.pull_request_number }}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        labels: |
+          ${{ inputs.network }} #${{ steps.nonce.outputs.content }}
+
+    - uses: peter-evans/close-pull@v1
+      if: ${{ inputs.send  == 'true' }}
+      with:
+        pull-request-number: ${{ inputs.pull_request_number }}
+        comment: Auto-closing pull request
+
+    - name: Delete PRs head branches
+      if: ${{ inputs.delete-branch-after-send == 'true' && inputs.send  == 'true'}}
+      uses: dawidd6/action-delete-branch@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        numbers: ${{ inputs.pull_request_number }}
+
+    - name: Add reaction
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        repository: ${{ inputs.github_repository }}
+        comment-id: ${{ inputs.comment-id }}
+        reaction-type: hooray
+
+    - name: Telegram Alert On Infra Failure
+      if: ${{ failure() && steps.failcheck.outcome == 'success' }}
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ inputs.failure_telegram_chat_id}}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: |
+          Grrrr grrrrr grrrrr ${{ steps.vars.outputs.run-url }} pipeline failed even though the brownie function succeeded!
+      continue-on-error: true
+
+    - name: Telegram Alert On Brownie Timeout
+      if: ${{ failure() && steps.timeout.outputs.brownie-timeout == 'true' }}
+      uses: appleboy/telegram-action@master
+      with:
+        to: ${{ inputs.failure_telegram_chat_id }}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        message: |
+          Grrrr grrrrr grrrrr ${{ steps.vars.outputs.run-url }} brownie timed out!
+      continue-on-error: true
+
+    - name: delete .brownie/accounts before cache upload
+      run: |
+        rm -rf ~/.brownie/accounts
