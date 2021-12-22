@@ -54,28 +54,29 @@ on:
         type: string
     secrets:
       TELEGRAM_TOKEN:
-        required: false
-        default: ""
+        required: true
+        type: string
       POLYGON_ALCHEMY_PROJECT_ID:
-        required: false
-        default: ""
+        required: true
+        type: string
       POLYGONSCAN_TOKEN:
-        required: false
-        default: ""
+        required: true
+        type: string
       FTMSCAN_TOKEN:
-        required: false
-        default: ""
+        required: true
+        type: string
       ETHERSCAN_TOKEN:
-        required: false
-        default: ""
+        required: true
+        type: string
       WEB3_INFURA_PROJECT_ID:
-        required: false
-        default: false
+        required: true
+        type: string
       PRIVATE_KEY:
-        required: false
-        default: false
+        required: true
+        type: string
       GITHUB_TOKEN:
         required: true
+        type: string
 
 jobs:
   dispatchCommand:
