@@ -152,7 +152,7 @@ jobs:
 
     - name: Run Function
       id: fn
-      timeout-minutes: ${{ inputs.number }}
+      timeout-minutes: ${{ inputs.timeout }}
       env:
         POLYGON_ALCHEMY_PROJECT_ID: ${{ secrets.POLYGON_ALCHEMY_PROJECT_ID }}
         POLYGONSCAN_TOKEN: ${{ secrets.POLYGONSCAN_TOKEN }}
