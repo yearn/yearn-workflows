@@ -49,6 +49,9 @@ on:
       github_run_id:
         required: true
         type: string
+      timeout:
+        required: true
+        type: number
     secrets:
       TELEGRAM_TOKEN:
         required: true
@@ -149,7 +152,7 @@ jobs:
 
     - name: Run Function
       id: fn
-      timeout-minutes: ${{ inputs.file == 'hydrate_ci_cache' && 60 || 5 }}
+      timeout-minutes: ${{ inputs.number }}
       env:
         POLYGON_ALCHEMY_PROJECT_ID: ${{ secrets.POLYGON_ALCHEMY_PROJECT_ID }}
         POLYGONSCAN_TOKEN: ${{ secrets.POLYGONSCAN_TOKEN }}
