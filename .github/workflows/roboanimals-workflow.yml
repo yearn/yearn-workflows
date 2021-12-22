@@ -49,9 +49,6 @@ on:
       github_run_id:
         required: true
         type: string
-      github_repository:
-        required: true
-        type: string
     secrets:
       TELEGRAM_TOKEN:
         required: true
