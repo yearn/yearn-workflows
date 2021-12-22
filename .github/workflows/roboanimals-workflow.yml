@@ -64,8 +64,6 @@ on:
         required: true
       PRIVATE_KEY:
         required: true
-      GITHUB_TOKEN:
-        required: true
 
 jobs:
   roboanimalsWorkflow:
