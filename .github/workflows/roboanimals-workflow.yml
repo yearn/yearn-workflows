@@ -61,6 +61,9 @@ on:
       brownie_cache_version:
         required: true
         type: string
+      close_pr:
+        required: true
+        type: string
     secrets:
       TELEGRAM_TOKEN:
         required: true
@@ -312,7 +315,7 @@ jobs:
           ${{ inputs.network }} #${{ steps.nonce.outputs.content }}
 
     - uses: peter-evans/close-pull@v1
-      if: ${{ inputs.send  == 'true' }}
+      if: ${{ inputs.send  == 'true' && inputs.close_pr == 'true'}}
       with:
         pull-request-number: ${{ inputs.pull_request_number }}
         comment: Auto-closing pull request
