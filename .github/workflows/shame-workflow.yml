@@ -96,7 +96,7 @@ jobs:
         trim: false
 
     - name: New TX Telegram Alert
-      uses: appleboy/telegram-action@master
+      uses: appleboy/telegram-action@v0.1.1
       with:
         to: ${{ inputs.TELEGRAM_CHAT_ID }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
