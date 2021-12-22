@@ -52,6 +52,9 @@ on:
       runs_on:
         required: true
         type: string
+      runner_name:
+        required: true
+        type: string
     secrets:
       TELEGRAM_TOKEN:
         required: true
@@ -91,7 +94,7 @@ jobs:
         path: |
           /home/runner/.solcx
           /home/runner/.vvm
-        key: ${{ runner.os }}-woofy-compiler-cache-v2
+        key: ${{ runner.os }}-${{ runner.name }}-compiler-cache-v2
 
     - name: Setup node.js
       uses: actions/setup-node@v1
@@ -112,10 +115,10 @@ jobs:
       with:
         path: |
           /home/runner/.cache/pip/
-        key: ${{ runner.os }}-pip-v2-${{ hashFiles('**/requirements-dev.txt') }}
+        key: ${{ runner.os }}-${{ inputs.runner_name}}-pip-v2-${{ hashFiles('**/requirements-dev.txt') }}
         restore-keys: |
-          ${{ runner.os }}-pip-v2-${{ hashFiles('**/requirements-dev.txt') }}
-          ${{ runner.os }}-pip-v2-
+          ${{ runner.os }}-${{ inputs.runner_name}}-pip-v2-${{ hashFiles('**/requirements-dev.txt') }}
+          ${{ runner.os }}-${{ inputs.runner_name}}-pip-v2-
 
     - name: Install python dependencies
       run: |
@@ -137,9 +140,9 @@ jobs:
           !/home/runner/.brownie/accounts
         key: ${{ runner.os }}-woofy-brownie-cache-v1
         restore-keys: |
-          ${{ runner.os }}-woofy-brownie-cache-v1
-          ${{ runner.os }}-woofy-brownie-cache-*
-          ${{ runner.os }}-woofy-brownie-cache
+          ${{ runner.os }}-${{ inputs.runner_name}}-brownie-cache-v1
+          ${{ runner.os }}-${{ inputs.runner_name}}-brownie-cache-*
+          ${{ runner.os }}-${{ inputs.runner_name}}-brownie-cache
 
     - name: delete .brownie/accounts after cache download
       run: |
