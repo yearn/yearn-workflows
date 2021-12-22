@@ -1,5 +1,3 @@
-name: Roboanimals workflow
-
 on:
   workflow_call:
     inputs:
@@ -78,7 +76,6 @@ on:
         default: false
       GITHUB_TOKEN:
         required: true
-
 
 jobs:
   dispatchCommand:
