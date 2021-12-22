@@ -106,6 +106,7 @@ jobs:
         ref: ${{ inputs.ref }}
 
     - uses: actions/github-script@v3
+      if: ${{ inputs.check_reviews == 'true' }}
       id: get-pr
       env:
         WORKING_FOLDER: '${{inputs.github_workspace}}'
