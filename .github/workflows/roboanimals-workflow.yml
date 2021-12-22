@@ -64,6 +64,18 @@ on:
       close_pr:
         required: true
         type: string
+      github_workspace:
+        required: true
+        type: string
+      check_reviews:
+        required: true
+        type: string
+      ftm_safe:
+        required: true
+        type: string
+      eth_safe:
+        required: true
+        type: string
     secrets:
       TELEGRAM_TOKEN:
         required: true
@@ -92,6 +104,28 @@ jobs:
     - uses: actions/checkout@v1
       with:
         ref: ${{ inputs.ref }}
+
+    - uses: actions/github-script@v3
+      id: get-pr
+      env:
+        WORKING_FOLDER: '${{inputs.github_workspace}}'
+      with:
+        script: |
+          const {GITHUB_WORKSPACE} = process.env
+          const script = require(`${GITHUB_WORKSPACE}/ci/getApprovals.js`)
+          return await script(github, context, core, ${{ inputs.pull_request_number }}, "${{ inputs.pull_request_author }}")
+
+    - name: 'check for reviews'
+      if: ${{ inputs.check_reviews == 'true' && inputs.send  == 'true' && steps.get-pr.outputs.result < 1}}
+      run: exit 1
+
+    - name: 'fail on no reviews'
+      if: ${{ inputs.check_reviews == 'true' && failure() }}
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        comment-id: ${{ inputs.comment-id }}
+        body: |
+          > Review requirement failed. Get at least one approval before sending.
 
     - name: Create URL to the run output
       id: vars
@@ -164,9 +198,14 @@ jobs:
         cp network-config.yaml ~/.brownie/
         brownie networks list true
 
+    - name: Brownie compile
+      timeout-minutes: 3
+      run: |
+        brownie compile
+
     - name: Run Function
       id: fn
-      timeout-minutes: 20
+      timeout-minutes: 45
       env:
         POLYGON_ALCHEMY_PROJECT_ID: ${{ secrets.POLYGON_ALCHEMY_PROJECT_ID }}
         POLYGONSCAN_TOKEN: ${{ secrets.POLYGONSCAN_TOKEN }}
@@ -247,12 +286,9 @@ jobs:
       run: |
         if [ "${{inputs.network}}" = "ftm" ]
         then 
-          echo "::set-output name=safe-link::https://safe.fantom.network/#/safes/0x72a34AbafAB09b15E7191822A679f28E067C4a16/transactions"
-        elif [ "${{inputs.network}}" = "matic" ]
-        then 
-          echo "::set-output name=safe-link::https://gnosis-safe.io/app/matic:0x6fb490DF3202a1b7e32765BCE47974133064C433/transactions/queue"
+          echo "::set-output name=safe-link::https://safe.fantom.network/#/safes/${{ inputs.ftm_safe }}/transactions"
         else
-          echo "::set-output name=safe-link::https://gnosis-safe.io/app/eth:0x16388463d60FFE0661Cf7F1f31a7D658aC790ff7/transactions/queue"
+          echo "::set-output name=safe-link::https://gnosis-safe.io/app/eth:${{ inputs.eth_safe }}/transactions/queue"
         fi
 
     - name: Edit comment with full run message
