@@ -5,35 +5,35 @@ on:
         required: true
         type: string
       comment-id:
-        description: 'The comment-id of the slash command'
         required: true
+        type: string
       file:
-        description: 'The file to run (e.g. main, hydrate_ci_cache)'
         required: true
-        default: 'main'
+        type: string
       network:
-        description: 'The network (e.g. eth, bsc, matic, ftm)'
         required: true
-        default: 'eth'
+        type: string
       fn:
-        description: 'Brownie function to run'
         required: true
+        type: string
       send:
-        description: 'Set to true to sign the tx and send to gnosis'
-        required: false
-        default: 'false'
-      pull_request_number:
-        description: 'Set to the pull request number for this command dispatch'
         required: true
+        type: string
+      pull_request_number:
+        required: true
+        type: string
       delete-branch-after-send:
-        description: 'Set to true to delete the PR branch after running with send=true'
-        default: 'true'
+        required: true
+        type: string
       pull_request_title:
         required: true
+        type: string
       pull_request_author:
-        required: false
+        required: true
+        type: string
       pull_request_description:
-        default: 'Empty PR description 🤡'
+        required: true
+        type: string
       github_repository:
         required: true
         type: string
