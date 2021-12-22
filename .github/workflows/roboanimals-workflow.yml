@@ -49,9 +49,6 @@ on:
       github_run_id:
         required: true
         type: string
-      timeout:
-        required: true
-        type: number
     secrets:
       TELEGRAM_TOKEN:
         required: true
@@ -66,6 +63,8 @@ on:
       WEB3_INFURA_PROJECT_ID:
         required: true
       PRIVATE_KEY:
+        required: true
+      PAT:
         required: true
 
 jobs:
@@ -296,7 +295,7 @@ jobs:
       if: ${{ inputs.send  == 'true' }}
       with:
         number: ${{ inputs.pull_request_number }}
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.PAT }}
         labels: |
           ${{ inputs.network }} #${{ steps.nonce.outputs.content }}
 
@@ -310,7 +309,7 @@ jobs:
       if: ${{ inputs.delete-branch-after-send == 'true' && inputs.send  == 'true'}}
       uses: dawidd6/action-delete-branch@v3
       with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
+        github_token: ${{ secrets.PAT }}
         numbers: ${{ inputs.pull_request_number }}
 
     - name: Add reaction
