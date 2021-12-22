@@ -42,7 +42,7 @@ on:
       group_telegram_chat_id:
         required: true
         type: string
-      annoncement_telegram_chat_id:
+      announcement_telegram_chat_id:
         required: true
         type: string
       failure_telegram_chat_id:
