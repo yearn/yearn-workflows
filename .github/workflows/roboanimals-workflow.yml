@@ -85,6 +85,12 @@ on:
         required: true
       ETHERSCAN_TOKEN:
         required: true
+      BSCSCAN_TOKEN:
+        required: true
+      ARBISCAN_TOKEN:
+        required: true
+      SNOWTRACE_TOKEN:
+        required: true
       PRIVATE_KEY:
         required: true
       PAT:
@@ -207,6 +213,9 @@ jobs:
         POLYGONSCAN_TOKEN: ${{ secrets.POLYGONSCAN_TOKEN }}
         FTMSCAN_TOKEN: ${{ secrets.FTMSCAN_TOKEN }}
         ETHERSCAN_TOKEN: ${{ secrets.ETHERSCAN_TOKEN }}
+        BSCSCAN_TOKEN: ${{ secrets.BSCSCAN_TOKEN }}
+        ARBISCAN_TOKEN: ${{ secrets.ARBISCAN_TOKEN }}
+        SNOWTRACE_TOKEN: ${{ secrets.SNOWTRACE_TOKEN }}
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         GITHUB_ACTION_SEND: ${{  inputs.send }}
       run: |
@@ -275,7 +284,7 @@ jobs:
         body: |
           > Dry run success: ${{ steps.vars.outputs.run-url }}
           > Rerun the command with send=true to publish the TX to the safe
-    
+
     - name: Set safe link
       id: safe-link
       run: |
