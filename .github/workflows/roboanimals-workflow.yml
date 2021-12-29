@@ -113,7 +113,7 @@ jobs:
       with:
         script: |
           const {data: pull} = await github.pulls.get({...context.repo, pull_number: ${{ inputs.pull_request_number }}});
-          return pull.body;
+          return pull.body.replace('\r\n', ' 🐶 ');
 
     - uses: actions/github-script@v3
       if: ${{ inputs.check_reviews == 'true' }}
@@ -324,7 +324,7 @@ jobs:
           TELEGRAM_MESSAGE=$(cat << EOF
           ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.safe-link.outputs.safe-link }}) \`${{ steps.get-pr-title.outputs.result}}\`
           Sender: ${{ inputs.pull_request_author }}
-          Description: ${{ steps.get-pr-body.outputs.result }}
+          Description: \`${{ steps.get-pr-body.outputs.result }}\`
           Review [the code](${{ steps.pr-url.outputs.pr-url }}), verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ steps.safe-link.outputs.safe-link }})
           EOF
           )
