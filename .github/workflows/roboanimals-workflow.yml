@@ -106,14 +106,14 @@ jobs:
       with:
         script: |
           const {data: pull} = await github.pulls.get({...context.repo, pull_number: ${{ inputs.pull_request_number }}});
-          return pull.title;
+          return pull.title.replace('$', '💲');
 
     - uses: actions/github-script@v3
       id: get-pr-body
       with:
         script: |
           const {data: pull} = await github.pulls.get({...context.repo, pull_number: ${{ inputs.pull_request_number }}});
-          return pull.body.replace('\r\n', ' 🐶 ');
+          return pull.body.replace('\r\n', ' 🐶 ').replace('$', '💲')
 
     - uses: actions/github-script@v3
       if: ${{ inputs.check_reviews == 'true' }}
