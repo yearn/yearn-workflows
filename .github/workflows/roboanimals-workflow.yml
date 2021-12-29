@@ -105,7 +105,7 @@ jobs:
       id: get-pr-info
       with:
         script: |
-          const {data: pull} = await github.pulls.get(...context.repo, pull_number: ${{ inputs.pull_request_number }})
+          const {data: pull} = await github.pulls.get({...context.repo, pull_number: ${{ inputs.pull_request_number }}});
           return pull
 
     - uses: actions/github-script@v3
