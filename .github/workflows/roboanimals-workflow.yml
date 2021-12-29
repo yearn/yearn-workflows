@@ -102,11 +102,18 @@ jobs:
         ref: ${{ inputs.ref }}
 
     - uses: actions/github-script@v3
-      id: get-pr-info
+      id: get-pr-title
       with:
         script: |
           const {data: pull} = await github.pulls.get({...context.repo, pull_number: ${{ inputs.pull_request_number }}});
-          return JSON.stringify(pull);
+          return pull.title;
+
+    - uses: actions/github-script@v3
+      id: get-pr-body
+      with:
+        script: |
+          const {data: pull} = await github.pulls.get({...context.repo, pull_number: ${{ inputs.pull_request_number }}});
+          return pull.body;
 
     - uses: actions/github-script@v3
       if: ${{ inputs.check_reviews == 'true' }}
@@ -315,9 +322,9 @@ jobs:
       id: telegram-message
       run: |
           TELEGRAM_MESSAGE=$(cat << EOF
-          ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.safe-link.outputs.safe-link }}) \`${{ fromJSON(steps.get-pr-info.outputs.result).title}}\`
+          ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.safe-link.outputs.safe-link }}) \`${{ steps.get-pr-title.outputs.result}}\`
           Sender: ${{ inputs.pull_request_author }}
-          Description: \`${{ fromJSON(steps.get-pr.outputs.result).body }}\`
+          Description: \`${{ steps.get-pr-body.outputs.result }}\`
           Review [the code](${{ steps.pr-url.outputs.pr-url }}), verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ steps.safe-link.outputs.safe-link }})
           EOF
           )
