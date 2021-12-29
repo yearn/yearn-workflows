@@ -25,13 +25,7 @@ on:
       delete-branch-after-send:
         required: true
         type: string
-      pull_request_title:
-        required: true
-        type: string
       pull_request_author:
-        required: true
-        type: string
-      pull_request_description:
         required: true
         type: string
       github_repository:
@@ -106,6 +100,13 @@ jobs:
     - uses: actions/checkout@v1
       with:
         ref: ${{ inputs.ref }}
+
+    - uses: actions/github-script@v3
+      id: get-pr-info
+      with:
+        script: |
+          const {data: pull} = await github.pulls.get(...context.repo, pull_number: ${{ inputs.pull_request_number }})
+          return pull
 
     - uses: actions/github-script@v3
       if: ${{ inputs.check_reviews == 'true' }}
@@ -314,9 +315,9 @@ jobs:
       id: telegram-message
       run: |
           TELEGRAM_MESSAGE=$(cat << EOF
-          ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.safe-link.outputs.safe-link }}) \`${{ inputs.pull_request_title }}\`
+          ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.safe-link.outputs.safe-link }}) \`${{ fromJSON(steps.get-pr-info.outputs.result.title)}}\`
           Sender: ${{ inputs.pull_request_author }}
-          Description: \`${{ inputs.pull_request_description }}\`
+          Description: \`${{ fromJSON(steps.get-pr.outputs.result.body) }}\`
           Review [the code](${{ steps.pr-url.outputs.pr-url }}), verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ steps.safe-link.outputs.safe-link }})
           EOF
           )
