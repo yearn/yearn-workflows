@@ -315,9 +315,9 @@ jobs:
       id: telegram-message
       run: |
           TELEGRAM_MESSAGE=$(cat << EOF
-          ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.safe-link.outputs.safe-link }}) \`${{ fromJSON(steps.get-pr-info.outputs.result.title)}}\`
+          ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.safe-link.outputs.safe-link }}) \`${{ steps.get-pr-info.outputs.result}}\`
           Sender: ${{ inputs.pull_request_author }}
-          Description: \`${{ fromJSON(steps.get-pr.outputs.result.body) }}\`
+          Description: \`${{ steps.get-pr.outputs.result }}\`
           Review [the code](${{ steps.pr-url.outputs.pr-url }}), verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ steps.safe-link.outputs.safe-link }})
           EOF
           )
