@@ -107,7 +107,7 @@ jobs:
         script: |
           const {data: pull} = await github.pulls.get({...context.repo, pull_number: ${{ inputs.pull_request_number }}});
           if (!pull.title) {
-            return 'Empty Title... wait how?';
+            return 'Empty Title 🤡';
           }
           return pull.title.replace(/\$/g, '💲');
 
