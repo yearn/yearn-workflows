@@ -412,5 +412,5 @@ jobs:
     - name: cleanup files
       run: |
         rm -rf ~/.brownie/accounts
-        rm ~/nonce.txt
-        rm ~/alive.signal
+        rm -f ~/nonce.txt
+        rm -f ~/alive.signal
