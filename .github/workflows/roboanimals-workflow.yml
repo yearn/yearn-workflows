@@ -170,7 +170,6 @@ jobs:
         node-version: '12.x'
 
     - name: Install ganache
-      if: ${{ inputs.cached_runner != 'true' }}
       run: npm install -g ganache-cli@beta
 
     - name: Set up python 3.8
