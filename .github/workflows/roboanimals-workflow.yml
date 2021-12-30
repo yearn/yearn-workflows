@@ -409,6 +409,8 @@ jobs:
           Grrrr grrrrr grrrrr ${{ steps.vars.outputs.run-url }} brownie timed out!
       continue-on-error: true
 
-    - name: delete .brownie/accounts before cache upload
+    - name: cleanup files
       run: |
         rm -rf ~/.brownie/accounts
+        rm ~/nonce.txt
+        rm ~/alive.signal
