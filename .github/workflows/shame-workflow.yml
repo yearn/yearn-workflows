@@ -13,6 +13,9 @@ on:
       TELEGRAM_CHAT_ID:
         required: true
         type: string
+      home_path:
+        required: true
+        type: string
     secrets:
       TELEGRAM_TOKEN:
         required: true
@@ -32,8 +35,8 @@ jobs:
       uses: actions/cache@v2
       with:
         path: |
-          /home/runner/.solcx
-          /home/runner/.vvm
+          ${{inputs.home_path}}/.solcx
+          ${{inputs.home_path}}/.vvm
         key: ${{ runner.os }}-woofy-compiler-cache-v1
 
     - name: Setup node.js
@@ -54,7 +57,7 @@ jobs:
       id: pip-cache
       with:
         path: |
-          /home/runner/.cache/pip/
+          ${{inputs.home_path}}/.cache/pip/
         key: ${{ runner.os }}-pip-v2-${{ hashFiles('**/requirements-dev.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-v2-${{ hashFiles('**/requirements-dev.txt') }}
@@ -92,7 +95,7 @@ jobs:
       id: alert
       uses: juliangruber/read-file-action@v1
       with:
-        path: /home/runner/alert.txt
+        path: ${{inputs.home_path}}/alert.txt
         trim: false
 
     - name: New TX Telegram Alert

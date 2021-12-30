@@ -70,6 +70,9 @@ on:
       eth_safe:
         required: true
         type: string
+      home_path:
+        required: true
+        type: string
     secrets:
       TELEGRAM_TOKEN:
         required: true
@@ -152,8 +155,8 @@ jobs:
       uses: actions/cache@v2
       with:
         path: |
-          /home/runner/.solcx
-          /home/runner/.vvm
+          ${{inputs.home_path}}/.solcx
+          ${{inputs.home_path}}/.vvm
         key: ${{ runner.os }}-${{ inputs.runner_name }}-compiler-cache-${{ inputs.compiler_cache_version }}
 
     - name: Setup node.js
@@ -174,7 +177,7 @@ jobs:
       id: pip-cache
       with:
         path: |
-          /home/runner/.cache/pip/
+          ${{inputs.home_path}}/.cache/pip/
         key: ${{ runner.os }}-${{ inputs.runner_name}}-pip-${{ hashFiles('**/requirements-dev.txt') }}
         restore-keys: |
           ${{ runner.os }}-${{ inputs.runner_name}}-pip-${{ hashFiles('**/requirements-dev.txt') }}
@@ -196,8 +199,8 @@ jobs:
       uses: actions/cache@v2
       with:
         path: |
-          /home/runner/.brownie
-          !/home/runner/.brownie/accounts
+          ${{inputs.home_path}}/.brownie
+          !${{inputs.home_path}}/.brownie/accounts
         key: ${{ runner.os }}-${{ inputs.runner_name}}-brownie-cache-${{ inputs.brownie_cache_version }}
         restore-keys: |
           ${{ runner.os }}-${{ inputs.runner_name}}-brownie-cache-${{ inputs.brownie_cache_version }}
@@ -271,7 +274,7 @@ jobs:
       id: nonce
       uses: juliangruber/read-file-action@v1
       with:
-        path: /home/runner/nonce.txt
+        path: ${{inputs.home_path}}/nonce.txt
         trim: false
 
     - name: Nonce fail check
