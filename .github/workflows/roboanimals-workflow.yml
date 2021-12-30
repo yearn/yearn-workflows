@@ -73,6 +73,9 @@ on:
       home_path:
         required: true
         type: string
+      cached_runner:
+        required: true
+        type: string
     secrets:
       TELEGRAM_TOKEN:
         required: true
@@ -152,6 +155,7 @@ jobs:
       run: echo ::set-output name=run-url::https://github.com/${{inputs.github_repository}}/actions/runs/${{inputs.github_run_id}}
 
     - name: Cache compiler installations
+      if: ${{ inputs.cached_runner != 'true' }}
       uses: actions/cache@v2
       with:
         path: |
@@ -160,11 +164,13 @@ jobs:
         key: ${{ runner.os }}-${{ inputs.runner_name }}-compiler-cache-${{ inputs.compiler_cache_version }}
 
     - name: Setup node.js
+      if: ${{ inputs.cached_runner != 'true' }}
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
 
     - name: Install ganache
+      if: ${{ inputs.cached_runner != 'true' }}
       run: npm install -g ganache-cli@beta
 
     - name: Set up python 3.8
@@ -173,6 +179,7 @@ jobs:
         python-version: 3.8
 
     - name: Restore pip cache
+      if: ${{ inputs.cached_runner != 'true' }}
       uses: actions/cache@v2
       id: pip-cache
       with:
@@ -184,6 +191,7 @@ jobs:
           ${{ runner.os }}-${{ inputs.runner_name}}-pip-
 
     - name: Install python dependencies
+      if: ${{ inputs.cached_runner != 'true' }}
       run: |
         python -m pip install --upgrade pip
         pip install wheel
@@ -196,6 +204,7 @@ jobs:
         key: send-${{ inputs.network }}
 
     - name: cache brownie database
+      if: ${{ inputs.cached_runner != 'true' }}
       uses: actions/cache@v2
       with:
         path: |
