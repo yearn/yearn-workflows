@@ -119,7 +119,7 @@ jobs:
           if (!pull.body) {
             return 'Empty Description 🤡';
           }
-          return pull.body.replace(/\r\n/g, ' 🐶 ')?.replace(/\$/g, '💲');
+          return pull.body.replace(/\r\n/g, ' 🐶 ').replace(/\$/g, '💲');
 
     - uses: actions/github-script@v3
       if: ${{ inputs.check_reviews == 'true' }}
