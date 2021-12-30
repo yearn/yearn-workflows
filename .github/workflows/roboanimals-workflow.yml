@@ -410,6 +410,7 @@ jobs:
       continue-on-error: true
 
     - name: cleanup files
+      if: always()
       run: |
         rm -rf ~/.brownie/accounts
         rm -f ~/nonce.txt
