@@ -164,7 +164,6 @@ jobs:
         key: ${{ runner.os }}-${{ inputs.runner_name }}-compiler-cache-${{ inputs.compiler_cache_version }}
 
     - name: Setup node.js
-      if: ${{ inputs.cached_runner != 'true' }}
       uses: actions/setup-node@v1
       with:
         node-version: '12.x'
