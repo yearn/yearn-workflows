@@ -299,7 +299,7 @@ jobs:
         comment-id: ${{ inputs.comment-id }}
         body: |
           > Failure: check output ${{ steps.vars.outputs.run-url }}
- 
+
     - name: Edit comment with dry run message
       if: ${{ inputs.send  == 'false' }}
       uses: peter-evans/create-or-update-comment@v1
@@ -308,6 +308,7 @@ jobs:
         body: |
           > Dry run success: ${{ steps.vars.outputs.run-url }}
           > Rerun the command with send=true to publish the TX to the safe
+      continue-on-error: true
 
     - name: Set safe link
       id: safe-link
@@ -319,16 +320,6 @@ jobs:
           echo "::set-output name=safe-link::https://gnosis-safe.io/app/eth:${{ inputs.eth_safe }}/transactions/queue"
         fi
 
-    - name: Edit comment with full run message
-      if: ${{ inputs.send  == 'true' }}
-      uses: peter-evans/create-or-update-comment@v1
-      with:
-        comment-id: ${{ inputs.comment-id }}
-        body: |
-          > TX with nonce ${{ steps.nonce.outputs.content }} successfully sent: ${{ steps.vars.outputs.run-url }}. 
-          > Find your queued TX at ${{ steps.safe-link.outputs.safe-link }}
-          > Your PR has been labeled with tag ${{inputs.network}} ${{ steps.nonce.outputs.content }}, which you can find here: https://github.com/yearn/strategist-ms/labels?q=${{ steps.nonce.outputs.content }}
-    
     - name: Set PR url
       id: pr-url
       run: |
@@ -370,6 +361,17 @@ jobs:
           ${{ env.TELEGRAM_MESSAGE }}
       continue-on-error: true
 
+    - name: Edit comment with full run message
+      if: ${{ inputs.send  == 'true' }}
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        comment-id: ${{ inputs.comment-id }}
+        body: |
+          > TX with nonce ${{ steps.nonce.outputs.content }} successfully sent: ${{ steps.vars.outputs.run-url }}. 
+          > Find your queued TX at ${{ steps.safe-link.outputs.safe-link }}
+          > Your PR has been labeled with tag ${{inputs.network}} ${{ steps.nonce.outputs.content }}, which you can find here: https://github.com/yearn/strategist-ms/labels?q=${{ steps.nonce.outputs.content }}
+      continue-on-error: true
+
     - uses: actions-ecosystem/action-add-labels@v1
       if: ${{ inputs.send  == 'true' }}
       with:
@@ -377,12 +379,14 @@ jobs:
         github_token: ${{ secrets.PAT }}
         labels: |
           ${{ inputs.network }} #${{ steps.nonce.outputs.content }}
+      continue-on-error: true
 
     - uses: peter-evans/close-pull@v1
       if: ${{ inputs.send  == 'true' && inputs.close_pr == 'true'}}
       with:
         pull-request-number: ${{ inputs.pull_request_number }}
         comment: Auto-closing pull request
+      continue-on-error: true
 
     - name: Delete PRs head branches
       if: ${{ inputs.delete-branch-after-send == 'true' && inputs.send  == 'true'}}
@@ -390,12 +394,14 @@ jobs:
       with:
         github_token: ${{ secrets.PAT }}
         numbers: ${{ inputs.pull_request_number }}
+      continue-on-error: true
 
     - name: Add reaction
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
         reaction-type: hooray
+      continue-on-error: true
 
     - name: Telegram Alert On Infra Failure
       if: ${{ failure() && steps.failcheck.outcome == 'success' }}
@@ -423,3 +429,4 @@ jobs:
         rm -rf ~/.brownie/accounts
         rm -f ~/nonce.txt
         rm -f ~/alive.signal
+      continue-on-error: true
