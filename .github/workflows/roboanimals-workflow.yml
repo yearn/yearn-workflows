@@ -290,16 +290,15 @@ jobs:
         body: |
           > Did not find nonce.txt. Did you run with send=true without actually posting the transaction at the end of your function? Use the @safe decorator above your function.
 
-    - name: Read safe url
-      if: ${{ inputs.send  == 'true' }}
-      id: read-safe-url
+    - name: Read safe link
+      id: read-safe-link
       uses: juliangruber/read-file-action@v1
       with:
         path: ${{inputs.home_path}}/safe.txt
         trim: false
 
     - name: Safe url check
-      if: ${{ failure() && steps.read-safe-url.outcome == 'failure' }}
+      if: ${{ failure() && steps.read-safe-link.outcome == 'failure' }}
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
@@ -330,7 +329,6 @@ jobs:
         echo "::set-output name=pr-url::https://github.com/${{github.repository}}/pull/${{ inputs.pull_request_number }}/files"
 
     - name: Create Telegram message
-      if: ${{ inputs.send == 'true' }}
       id: telegram-message
       run: |
           TELEGRAM_MESSAGE=$(cat << EOF
