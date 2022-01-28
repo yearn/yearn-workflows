@@ -64,16 +64,13 @@ on:
       check_reviews:
         required: true
         type: string
-      ftm_safe:
-        required: true
-        type: string
-      eth_safe:
-        required: true
-        type: string
       home_path:
         required: true
         type: string
       cached_runner:
+        required: true
+        type: string
+      be:
         required: true
         type: string
     secrets:
@@ -242,6 +239,7 @@ jobs:
         SNOWTRACE_TOKEN: ${{ secrets.SNOWTRACE_TOKEN }}
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         GITHUB_ACTION_SEND: ${{  inputs.send }}
+        BE: ${{ inputs.be }}
       run: |
         python3 $GITHUB_WORKSPACE/ci/run_brownie.py brownie run ${{ inputs.file }} ${{ inputs.fn }} --network ${{ inputs.network }}-main-fork 1>output.txt 2>error.txt || EXIT_CODE=$?
         echo "::set-output name=brownie-exit-code::$EXIT_CODE"
@@ -292,6 +290,22 @@ jobs:
         body: |
           > Did not find nonce.txt. Did you run with send=true without actually posting the transaction at the end of your function? Use the @safe decorator above your function.
 
+    - name: Read safe url
+      if: ${{ inputs.send  == 'true' }}
+      id: read-safe-url
+      uses: juliangruber/read-file-action@v1
+      with:
+        path: ${{inputs.home_path}}/safe.txt
+        trim: false
+
+    - name: Safe url check
+      if: ${{ failure() && steps.read-safe-url.outcome == 'failure' }}
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        comment-id: ${{ inputs.comment-id }}
+        body: |
+          > Did not find safe.txt.
+
     - name: Edit comment with error message
       if: failure()
       uses: peter-evans/create-or-update-comment@v1
@@ -310,29 +324,20 @@ jobs:
           > Rerun the command with send=true to publish the TX to the safe
       continue-on-error: true
 
-    - name: Set safe link
-      id: safe-link
-      run: |
-        if [ "${{inputs.network}}" = "ftm" ]
-        then 
-          echo "::set-output name=safe-link::https://safe.fantom.network/#/safes/${{ inputs.ftm_safe }}/transactions"
-        else
-          echo "::set-output name=safe-link::https://gnosis-safe.io/app/eth:${{ inputs.eth_safe }}/transactions/queue"
-        fi
-
     - name: Set PR url
       id: pr-url
       run: |
         echo "::set-output name=pr-url::https://github.com/${{github.repository}}/pull/${{ inputs.pull_request_number }}/files"
 
     - name: Create Telegram message
+      if: ${{ inputs.send == 'true' }}
       id: telegram-message
       run: |
           TELEGRAM_MESSAGE=$(cat << EOF
-          ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.safe-link.outputs.safe-link }}) \`${{ steps.get-pr-title.outputs.result}}\`
+          ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.read-safe-link.outputs.content }}) \`${{ steps.get-pr-title.outputs.result}}\`
           Sender: ${{ inputs.pull_request_author }}
           Description: \`${{ steps.get-pr-body.outputs.result }}\`
-          Review [the code](${{ steps.pr-url.outputs.pr-url }}), verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ steps.safe-link.outputs.safe-link }})
+          Review [the code](${{ steps.pr-url.outputs.pr-url }}), verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ steps.read-safe-link.outputs.content }})
           EOF
           )
           echo "TELEGRAM_MESSAGE<<EOF" >> $GITHUB_ENV
@@ -368,7 +373,7 @@ jobs:
         comment-id: ${{ inputs.comment-id }}
         body: |
           > TX with nonce ${{ steps.nonce.outputs.content }} successfully sent: ${{ steps.vars.outputs.run-url }}. 
-          > Find your queued TX at ${{ steps.safe-link.outputs.safe-link }}
+          > Find your queued TX at ${{ steps.read-safe-link.outputs.content }}
           > Your PR has been labeled with tag ${{inputs.network}} ${{ steps.nonce.outputs.content }}, which you can find here: https://github.com/yearn/strategist-ms/labels?q=${{ steps.nonce.outputs.content }}
       continue-on-error: true
 
@@ -429,4 +434,5 @@ jobs:
         rm -rf ~/.brownie/accounts
         rm -f ~/nonce.txt
         rm -f ~/alive.signal
+        rm -f ~/safe.txt
       continue-on-error: true
