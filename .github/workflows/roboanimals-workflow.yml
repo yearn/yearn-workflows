@@ -25,9 +25,6 @@ on:
       delete-branch-after-send:
         required: true
         type: string
-      pull_request_author:
-        required: true
-        type: string
       github_repository:
         required: true
         type: string
@@ -124,6 +121,17 @@ jobs:
           }
           return pull.body.replace(/\r\n/g, ' 🐶 ').replace(/\$/g, '💲');
 
+
+    - uses: actions/github-script@v3
+      id: get-pr-author
+      with:
+        script: |
+          const {data: pull} = await github.pulls.get({...context.repo, pull_number: ${{ inputs.pull_request_number }}});
+          if (!pull.user.login) {
+            return 'Empty Description 🤡';
+          }
+          return pull.user.login;
+
     - uses: actions/github-script@v3
       if: ${{ inputs.check_reviews == 'true' }}
       id: get-pr
@@ -133,7 +141,7 @@ jobs:
         script: |
           const {GITHUB_WORKSPACE} = process.env
           const script = require(`${GITHUB_WORKSPACE}/ci/getApprovals.js`)
-          return await script(github, context, core, ${{ inputs.pull_request_number }}, "${{ inputs.pull_request_author }}")
+          return await script(github, context, core, ${{ inputs.pull_request_number }}, "${{ steps.get-pr-body.outputs.result }}")
 
     - name: 'check for reviews'
       if: ${{ inputs.check_reviews == 'true' && inputs.send  == 'true' && steps.get-pr.outputs.result < 1}}
@@ -333,7 +341,7 @@ jobs:
       run: |
           TELEGRAM_MESSAGE=$(cat << EOF
           ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.read-safe-link.outputs.content }}) \`${{ steps.get-pr-title.outputs.result}}\`
-          Sender: ${{ inputs.pull_request_author }}
+          Sender: ${{ steps.get-pr-body.outputs.result }}
           Description: \`${{ steps.get-pr-body.outputs.result }}\`
           Review [the code](${{ steps.pr-url.outputs.pr-url }}), verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ steps.read-safe-link.outputs.content }})
           EOF
