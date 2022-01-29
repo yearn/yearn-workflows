@@ -127,8 +127,8 @@ jobs:
       with:
         script: |
           const {data: pull} = await github.pulls.get({...context.repo, pull_number: ${{ inputs.pull_request_number }}});
-          if (!pull.user.login) {
-            return 'Empty Description 🤡';
+          if (pull.user.login === null) {
+            return 'Empty Author 🤡';
           }
           return pull.user.login;
 
