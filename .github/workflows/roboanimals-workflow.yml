@@ -341,7 +341,7 @@ jobs:
       run: |
           TELEGRAM_MESSAGE=$(cat << EOF
           ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.read-safe-link.outputs.content }}) \`${{ steps.get-pr-title.outputs.result}}\`
-          Sender: ${{ steps.get-pr-body.outputs.result }}
+          Sender: ${{ steps.get-pr-author.outputs.result }}
           Description: \`${{ steps.get-pr-body.outputs.result }}\`
           Review [the code](${{ steps.pr-url.outputs.pr-url }}), verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ steps.read-safe-link.outputs.content }})
           EOF
