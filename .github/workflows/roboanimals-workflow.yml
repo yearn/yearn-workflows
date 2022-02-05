@@ -141,7 +141,7 @@ jobs:
         script: |
           const {GITHUB_WORKSPACE} = process.env
           const script = require(`${GITHUB_WORKSPACE}/ci/getApprovals.js`)
-          return await script(github, context, core, ${{ inputs.pull_request_number }}, "${{ steps.get-pr-body.outputs.result }}")
+          return await script(github, context, core, ${{ inputs.pull_request_number }}, "${{ steps.get-pr-author.outputs.result }}")
 
     - name: 'check for reviews'
       if: ${{ inputs.check_reviews == 'true' && inputs.send  == 'true' && steps.get-pr.outputs.result < 1}}
