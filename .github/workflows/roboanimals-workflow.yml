@@ -214,7 +214,8 @@ jobs:
 
     - name: cache brownie database
       if: ${{ inputs.cached_runner != 'true' }}
-      uses: actions/cache@v2
+      id: cache-brownie
+      uses: martijnhols/actions-cache/restore@v3
       with:
         path: |
           ${{inputs.home_path}}/.brownie
@@ -450,3 +451,9 @@ jobs:
         rm -f ~/alive.signal
         rm -f ~/safe.txt
       continue-on-error: true
+
+    - name: Save ".brownie" to cache
+      uses: martijnhols/actions-cache/save@v3
+      with:
+        path: node_modules
+        key: ${{ steps.cache-brownie.outputs.primary-key }}
