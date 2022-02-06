@@ -452,6 +452,7 @@ jobs:
       continue-on-error: true
 
     - name: Save ".brownie" to cache
+      if: ${{ inputs.cached_runner != 'true' }}
       uses: martijnhols/actions-cache/save@v3
       with:
         path: node_modules
