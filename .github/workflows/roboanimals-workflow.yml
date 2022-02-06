@@ -139,9 +139,15 @@ jobs:
         WORKING_FOLDER: '${{inputs.github_workspace}}'
       with:
         script: |
-          const {GITHUB_WORKSPACE} = process.env
-          const script = require(`${GITHUB_WORKSPACE}/ci/getApprovals.js`)
-          return await script(github, context, core, ${{ inputs.pull_request_number }}, ${{ steps.get-pr-author.outputs.result }})
+          const { data: reviews } = await github.pulls.listReviews({
+            ...context.repo,
+            pull_number: ${{ inputs.pull_request_number }},
+          })
+
+          const approvals = reviews.filter(review => review.state == 'APPROVED')
+          const reviews_filtered = approvals.filter(review => review.user.login != ${{ steps.get-pr-author.outputs.result }})
+          core.info(`List of reviews:\n ${JSON.stringify(reviews_filtered)}`)
+          return reviews_filtered.length
 
     - name: 'check for reviews'
       if: ${{ inputs.check_reviews == 'true' && inputs.send  == 'true' && steps.get-pr.outputs.result < 1}}
@@ -249,7 +255,7 @@ jobs:
         GITHUB_ACTION_SEND: ${{  inputs.send }}
         BE: ${{ inputs.be }}
       run: |
-        python3 $GITHUB_WORKSPACE/ci/run_brownie.py brownie run ${{ inputs.file }} ${{ inputs.fn }} --network ${{ inputs.network }}-main-fork 1>output.txt 2>error.txt || EXIT_CODE=$?
+        python3 -m multisig_ci brownie run ${{ inputs.file }} ${{ inputs.fn }} --network ${{ inputs.network }}-main-fork 1>output.txt 2>error.txt || EXIT_CODE=$?
         echo "::set-output name=brownie-exit-code::$EXIT_CODE"
         echo "::group:: Output"
         cat output.txt
