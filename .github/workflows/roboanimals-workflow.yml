@@ -302,7 +302,7 @@ jobs:
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > Did not find nonce.txt. Did you run with send=true without actually posting the transaction at the end of your function? Use the @safe decorator above your function.
+          > Did not find nonce.txt. Did you run with send=true without actually posting the transaction at the end of your function? Use the @sign decorator above your function.
 
     - name: Read safe link
       if: ${{ inputs.send  == 'true' }}
