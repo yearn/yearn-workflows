@@ -362,6 +362,7 @@ jobs:
       if: ${{ inputs.send == 'true' }}
       uses: appleboy/telegram-action@master
       with:
+        disable_web_page_preview: true 
         to: ${{ inputs.announcement_telegram_chat_id}}
         token: ${{ secrets.TELEGRAM_TOKEN }}
         format: markdown
@@ -373,6 +374,7 @@ jobs:
       if: ${{ inputs.send == 'true' }}
       uses: appleboy/telegram-action@master
       with:
+        disable_web_page_preview: true
         to: ${{ inputs.group_telegram_chat_id}}
         token: ${{ secrets.TELEGRAM_TOKEN }}
         format: markdown
@@ -426,6 +428,7 @@ jobs:
       if: ${{ failure() && steps.failcheck.outcome == 'success' }}
       uses: appleboy/telegram-action@master
       with:
+        disable_web_page_preview: true 
         to: ${{ inputs.failure_telegram_chat_id}}
         token: ${{ secrets.TELEGRAM_TOKEN }}
         message: |
