@@ -357,7 +357,6 @@ jobs:
 
     - name: Create Telegram message - from PR
       if: ${{ inputs.send  == 'true' && inputs.from_pr == 'true' }}
-      id: telegram-message
       run: |
           TELEGRAM_MESSAGE=$(cat << EOF
           ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.read-safe-link.outputs.content }}) \`${{ steps.get-pr-title.outputs.result}}\`
@@ -372,7 +371,6 @@ jobs:
 
     - name: Create Telegram message - automated
       if: ${{ inputs.send  == 'true' && inputs.from_pr == 'false' }}
-      id: telegram-message
       run: |
           TELEGRAM_MESSAGE=$(cat << EOF
           ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.read-safe-link.outputs.content }}) \`${{ steps.get-pr-title.outputs.result}}\`
