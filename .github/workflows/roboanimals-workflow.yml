@@ -332,7 +332,7 @@ jobs:
           > Did not find safe.txt.
 
     - name: Edit comment with error message
-      if: failure()
+      if: ${{ failure() && inputs.from_pr == 'true' }}
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
@@ -340,7 +340,7 @@ jobs:
           > Failure: check output ${{ steps.vars.outputs.run-url }}
 
     - name: Edit comment with dry run message
-      if: ${{ inputs.send  == 'false' }}
+      if: ${{ inputs.send  == 'false' && inputs.from_pr == 'true'}}
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
@@ -444,9 +444,10 @@ jobs:
       continue-on-error: true
 
     - name: Add reaction
+      if: ${{ inputs.from_pr == 'true' }}
       uses: peter-evans/create-or-update-comment@v1
       with:
-        comment-id: ${{ inputs.comment-id && inputs.from_pr == 'true'}}
+        comment-id: ${{ inputs.comment-id }}
         reaction-type: hooray
       continue-on-error: true
 
