@@ -76,8 +76,12 @@ on:
         type: string
       cron_job_description:
         required: false
-        default: ''
+        default: 'default cronjob description'
         type: string
+      cron_job_author:
+        required: false
+        type: string
+        default: 'no cron job author specified'
     secrets:
       TELEGRAM_TOKEN:
         required: true
@@ -374,7 +378,7 @@ jobs:
       run: |
           TELEGRAM_MESSAGE=$(cat << EOF
           ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.read-safe-link.outputs.content }}) \`${{ steps.get-pr-title.outputs.result}}\`
-          Sender: cron job
+          Sender: ${{ inputs.cron_job_author }} (via cronjob)
           Description: ${{ inputs.cron_job_description }}
           Verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ steps.read-safe-link.outputs.content }})
           EOF
