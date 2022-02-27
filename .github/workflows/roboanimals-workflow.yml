@@ -70,6 +70,14 @@ on:
       be:
         required: true
         type: string
+      from_pr:
+        required: false
+        default: 'true'
+        type: string
+      cron_job_description:
+        required: false
+        default: ''
+        type: string
     secrets:
       TELEGRAM_TOKEN:
         required: true
@@ -102,6 +110,7 @@ jobs:
         ref: ${{ inputs.ref }}
 
     - uses: actions/github-script@v3
+      if: ${{ inputs.from_pr == 'true' }}
       id: get-pr-title
       with:
         script: |
@@ -112,6 +121,7 @@ jobs:
           return pull.title.replace(/\$/g, '💲');
 
     - uses: actions/github-script@v3
+      if: ${{ inputs.from_pr == 'true' }}
       id: get-pr-body
       with:
         script: |
@@ -123,6 +133,7 @@ jobs:
 
 
     - uses: actions/github-script@v3
+      if: ${{ inputs.from_pr == 'true' }}
       id: get-pr-author
       with:
         script: |
@@ -339,12 +350,13 @@ jobs:
       continue-on-error: true
 
     - name: Set PR url
+      if: ${{ inputs.from_pr == 'true' }}
       id: pr-url
       run: |
         echo "::set-output name=pr-url::https://github.com/${{github.repository}}/pull/${{ inputs.pull_request_number }}/files"
 
-    - name: Create Telegram message
-      if: ${{ inputs.send  == 'true' }}
+    - name: Create Telegram message - from PR
+      if: ${{ inputs.send  == 'true' && inputs.from_pr == 'true' }}
       id: telegram-message
       run: |
           TELEGRAM_MESSAGE=$(cat << EOF
@@ -357,7 +369,23 @@ jobs:
           echo "TELEGRAM_MESSAGE<<EOF" >> $GITHUB_ENV
           echo "$TELEGRAM_MESSAGE" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-  
+
+    - name: Create Telegram message - automated
+      if: ${{ inputs.send  == 'true' && inputs.from_pr == 'false' }}
+      id: telegram-message
+      run: |
+          TELEGRAM_MESSAGE=$(cat << EOF
+          ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.read-safe-link.outputs.content }}) \`${{ steps.get-pr-title.outputs.result}}\`
+          Sender: cron job
+          Description: ${{ inputs.cron_job_description }}
+          Verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ steps.read-safe-link.outputs.content }})
+          EOF
+          )
+          echo "TELEGRAM_MESSAGE<<EOF" >> $GITHUB_ENV
+          echo "$TELEGRAM_MESSAGE" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+
     - name: New TX Telegram Alert - Robowoofy Alert Chat
       if: ${{ inputs.send == 'true' }}
       uses: appleboy/telegram-action@master
@@ -383,7 +411,7 @@ jobs:
       continue-on-error: true
 
     - name: Edit comment with full run message
-      if: ${{ inputs.send  == 'true' }}
+      if: ${{ inputs.send  == 'true' && inputs.from_pr == 'true' }}
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
@@ -394,7 +422,7 @@ jobs:
       continue-on-error: true
 
     - uses: actions-ecosystem/action-add-labels@v1
-      if: ${{ inputs.send  == 'true' }}
+      if: ${{ inputs.send  == 'true' && inputs.from_pr == 'true' }}
       with:
         number: ${{ inputs.pull_request_number }}
         github_token: ${{ secrets.PAT }}
@@ -403,14 +431,14 @@ jobs:
       continue-on-error: true
 
     - uses: peter-evans/close-pull@v1
-      if: ${{ inputs.send  == 'true' && inputs.close_pr == 'true'}}
+      if: ${{ inputs.send  == 'true' && inputs.close_pr == 'true' && inputs.from_pr == 'true' }}
       with:
         pull-request-number: ${{ inputs.pull_request_number }}
         comment: Auto-closing pull request
       continue-on-error: true
 
     - name: Delete PRs head branches
-      if: ${{ inputs.delete-branch-after-send == 'true' && inputs.send  == 'true'}}
+      if: ${{ inputs.delete-branch-after-send == 'true' && inputs.send  == 'true' && inputs.from_pr == 'true'}}
       uses: dawidd6/action-delete-branch@v3
       with:
         github_token: ${{ secrets.PAT }}
@@ -420,7 +448,7 @@ jobs:
     - name: Add reaction
       uses: peter-evans/create-or-update-comment@v1
       with:
-        comment-id: ${{ inputs.comment-id }}
+        comment-id: ${{ inputs.comment-id && inputs.from_pr == 'true'}}
         reaction-type: hooray
       continue-on-error: true
 
