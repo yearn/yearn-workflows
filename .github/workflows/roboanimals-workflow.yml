@@ -378,7 +378,7 @@ jobs:
       run: |
           TELEGRAM_MESSAGE=$(cat << EOF
           ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.read-safe-link.outputs.content }}) \`${{ steps.get-pr-title.outputs.result}}\`
-          Sender: ${{ inputs.job_author }} (via cronjob)
+          Sender: ${{ inputs.job_author }} (via cronjob or manual trigger)
           Description: ${{ inputs.job_description }}
           Function ran: ${{ inputs.fn }} in ${{inputs.file}}.py
           Verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ steps.read-safe-link.outputs.content }})
