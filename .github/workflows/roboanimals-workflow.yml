@@ -112,6 +112,7 @@ jobs:
     - uses: actions/checkout@v1
       with:
         ref: ${{ inputs.ref }}
+        submodules: 'true'
 
     - uses: actions/github-script@v3
       if: ${{ inputs.from_pr == 'true' }}
