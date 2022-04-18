@@ -389,17 +389,29 @@ jobs:
           echo "$TELEGRAM_MESSAGE" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
+
     - name: New TX Telegram Alert - Robowoofy Alert Chat
       if: ${{ inputs.send == 'true' }}
-      run: |
-        python3 -m multisig_ci send_and_pin_message ${{ secrets.TELEGRAM_TOKEN }} ${{ inputs.announcement_telegram_chat_id }} ${{ env.TELEGRAM_MESSAGE }}
+      uses: appleboy/telegram-action@master
+      with:
+        disable_web_page_preview: true 
+        to: ${{ inputs.announcement_telegram_chat_id}}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        format: markdown
+        message: |
+          ${{ env.TELEGRAM_MESSAGE }}
       continue-on-error: true
-
 
     - name: New TX Telegram Alert - MultiSig Chat
       if: ${{ inputs.send == 'true' }}
-      run: |
-        python3 -m multisig_ci send_and_pin_message ${{ secrets.TELEGRAM_TOKEN }} ${{ inputs.group_telegram_chat_id }} ${{ env.TELEGRAM_MESSAGE }}
+      uses: appleboy/telegram-action@master
+      with:
+        disable_web_page_preview: true
+        to: ${{ inputs.group_telegram_chat_id}}
+        token: ${{ secrets.TELEGRAM_TOKEN }}
+        format: markdown
+        message: |
+          ${{ env.TELEGRAM_MESSAGE }}
       continue-on-error: true
 
     - name: Edit comment with full run message
