@@ -253,6 +253,7 @@ jobs:
         brownie networks list true
 
     - name: Brownie compile
+      if: ${{ inputs.fn != 'hydrate_compiler_cache' }}
       timeout-minutes: 3
       run: |
         brownie compile
