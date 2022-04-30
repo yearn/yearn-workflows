@@ -25,44 +25,50 @@ on:
       delete-branch-after-send:
         required: true
         type: string
+      github_repository:
+        required: true
+        type: string
       group_telegram_chat_id:
-        required: false
-        default: ''
+        required: true
         type: string
       announcement_telegram_chat_id:
-        required: false
-        default: false
+        required: true
         type: string
       failure_telegram_chat_id:
-        required: false
-        default: ''
+        required: true
+        type: string
+      github_run_id:
+        required: true
         type: string
       runs_on:
         required: true
         type: string
+      runner_name:
+        required: true
+        type: string
       compiler_cache_version:
-        required: false
-        default: 'v0.0.1'
+        required: true
         type: string
       brownie_cache_version:
-        required: false
+        required: true
         type: string
-        default: 'v0.0.1'
       close_pr:
-        required: false
-        default: 'false'
+        required: true
+        type: string
+      github_workspace:
+        required: true
         type: string
       check_reviews:
-        required: false
-        default: 'false'
+        required: true
+        type: string
+      home_path:
+        required: true
         type: string
       cached_runner:
-        required: false
-        default: 'false'
+        required: true
         type: string
       be:
-        required: false
-        default: 'false'
+        required: true
         type: string
       from_pr:
         required: false
@@ -103,14 +109,12 @@ jobs:
     steps:
     - uses: hmarr/debug-action@v2
 
-    - name: Checking out code
-      uses: actions/checkout@v1
+    - uses: actions/checkout@v1
       with:
         ref: ${{ inputs.ref }}
         submodules: 'true'
 
-    - name: Get PR title
-      uses: actions/github-script@v3
+    - uses: actions/github-script@v3
       if: ${{ inputs.from_pr == 'true' }}
       id: get-pr-title
       with:
@@ -121,8 +125,7 @@ jobs:
           }
           return pull.title.replace(/\$/g, '💲');
 
-    - name: Get PR body
-      uses: actions/github-script@v3
+    - uses: actions/github-script@v3
       if: ${{ inputs.from_pr == 'true' }}
       id: get-pr-body
       with:
@@ -134,8 +137,7 @@ jobs:
           return pull.body.replace(/\r\n/g, ' 🐶 ').replace(/\$/g, '💲');
 
 
-    - name: Get PR author
-      uses: actions/github-script@v3
+    - uses: actions/github-script@v3
       if: ${{ inputs.from_pr == 'true' }}
       id: get-pr-author
       with:
@@ -146,10 +148,11 @@ jobs:
           }
           return pull.user.login;
 
-    - name: Pull down reviews
-      uses: actions/github-script@v3
+    - uses: actions/github-script@v3
       if: ${{ inputs.check_reviews == 'true' }}
       id: get-pr
+      env:
+        WORKING_FOLDER: '${{inputs.github_workspace}}'
       with:
         script: |
           const { data: reviews } = await github.pulls.listReviews({
@@ -162,11 +165,11 @@ jobs:
           core.info(`List of reviews:\n ${JSON.stringify(reviews_filtered)}`)
           return reviews_filtered.length
 
-    - name: Check Reviews
+    - name: 'check for reviews'
       if: ${{ inputs.check_reviews == 'true' && inputs.send  == 'true' && steps.get-pr.outputs.result < 1}}
       run: exit 1
 
-    - name: Fail on no reviews
+    - name: 'fail on no reviews'
       if: ${{ inputs.check_reviews == 'true' && failure() }}
       uses: peter-evans/create-or-update-comment@v1
       with:
@@ -176,16 +179,16 @@ jobs:
 
     - name: Create URL to the run output
       id: vars
-      run: echo ::set-output name=run-url::https://github.com/${{github.repository}}/actions/runs/$GITHUB_RUN_ID
+      run: echo ::set-output name=run-url::https://github.com/${{inputs.github_repository}}/actions/runs/${{inputs.github_run_id}}
 
     - name: Cache compiler installations
       if: ${{ inputs.cached_runner != 'true' }}
       uses: actions/cache@v2
       with:
         path: |
-          ~/.solcx
-          ~/.vvm
-        key: ${{ runner.os }}-compiler-cache-${{ inputs.compiler_cache_version }}
+          ${{inputs.home_path}}/.solcx
+          ${{inputs.home_path}}/.vvm
+        key: ${{ runner.os }}-${{ inputs.runner_name }}-compiler-cache-${{ inputs.compiler_cache_version }}
 
     - name: Setup node.js
       uses: actions/setup-node@v1
@@ -206,11 +209,11 @@ jobs:
       id: pip-cache
       with:
         path: |
-          ~/.cache/pip/
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
+          ${{inputs.home_path}}/.cache/pip/
+        key: ${{ runner.os }}-${{ inputs.runner_name}}-pip-${{ hashFiles('**/requirements-dev.txt') }}
         restore-keys: |
-          ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
-          ${{ runner.os }}-pip-
+          ${{ runner.os }}-${{ inputs.runner_name}}-pip-${{ hashFiles('**/requirements-dev.txt') }}
+          ${{ runner.os }}-${{ inputs.runner_name}}-pip-
 
     - name: Install python dependencies
       run: |
@@ -230,16 +233,15 @@ jobs:
       uses: martijnhols/actions-cache/restore@v3
       with:
         path: |
-          ~/.brownie
-          !~/.brownie/accounts
-        key: ${{ runner.os }}-brownie-cache-${{ inputs.brownie_cache_version }}
+          ${{inputs.home_path}}/.brownie
+          !${{inputs.home_path}}/.brownie/accounts
+        key: ${{ runner.os }}-${{ inputs.runner_name}}-brownie-cache-${{ inputs.brownie_cache_version }}
         restore-keys: |
-          ${{ runner.os }}-brownie-cache-${{ inputs.brownie_cache_version }}
-          ${{ runner.os }}-brownie-cache-*
-          ${{ runner.os }}-brownie-cache
+          ${{ runner.os }}-${{ inputs.runner_name}}-brownie-cache-${{ inputs.brownie_cache_version }}
+          ${{ runner.os }}-${{ inputs.runner_name}}-brownie-cache-*
+          ${{ runner.os }}-${{ inputs.runner_name}}-brownie-cache
 
     - name: delete .brownie/accounts after cache download
-      if: ${{ inputs.cached_runner != 'true' }}
       run: |
         rm -rf ~/.brownie/accounts
     
@@ -308,7 +310,7 @@ jobs:
       id: nonce
       uses: juliangruber/read-file-action@v1
       with:
-        path: ~/nonce.txt
+        path: ${{inputs.home_path}}/nonce.txt
         trim: false
 
     - name: Nonce fail check
@@ -324,7 +326,7 @@ jobs:
       id: read-safe-link
       uses: juliangruber/read-file-action@v1
       with:
-        path: ~/safe.txt
+        path: ${{inputs.home_path}}/safe.txt
         trim: false
 
     - name: Safe url check
