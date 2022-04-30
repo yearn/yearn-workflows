@@ -306,9 +306,10 @@ jobs:
     - name: Read nonce
       if: ${{ inputs.send  == 'true' }}
       id: nonce
-      run: |
-        nonce=$(cat ~/nonce.txt)
-        echo "::set-output name=content::$nonce
+      uses: juliangruber/read-file-action@v1
+      with:
+        path: ~/nonce.txt
+        trim: false
 
     - name: Nonce fail check
       if: ${{ failure() && steps.nonce.outcome == 'failure' }}
@@ -321,9 +322,10 @@ jobs:
     - name: Read safe link
       if: ${{ inputs.send  == 'true' }}
       id: read-safe-link
-      run: |
-        safe=$(cat ~/safe.txt)
-        echo "::set-output name=content::$safe
+      uses: juliangruber/read-file-action@v1
+      with:
+        path: ~/safe.txt
+        trim: false
 
     - name: Safe url check
       if: ${{ inputs.send == true && failure() && steps.read-safe-link.outcome == 'failure' }}
