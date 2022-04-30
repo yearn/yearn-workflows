@@ -262,6 +262,7 @@ jobs:
       id: fn
       timeout-minutes: 45
       env:
+        COORDINAPE_BEARER_TOKEN: ${{ secrets.COORDINAPE_BEARER_TOKEN }}
         POLYGONSCAN_TOKEN: ${{ secrets.POLYGONSCAN_TOKEN }}
         FTMSCAN_TOKEN: ${{ secrets.FTMSCAN_TOKEN }}
         ETHERSCAN_TOKEN: ${{ secrets.ETHERSCAN_TOKEN }}
