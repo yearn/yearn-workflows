@@ -84,7 +84,7 @@ on:
         default: 'no cron job author specified'
     secrets:
       COORDINAPE_BEARER_TOKEN:
-        required: true
+        required: false
       TELEGRAM_TOKEN:
         required: true
       POLYGONSCAN_TOKEN:
