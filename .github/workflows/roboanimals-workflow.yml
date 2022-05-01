@@ -25,50 +25,44 @@ on:
       delete-branch-after-send:
         required: true
         type: string
-      github_repository:
-        required: true
-        type: string
       group_telegram_chat_id:
-        required: true
+        required: false
+        default: ''
         type: string
       announcement_telegram_chat_id:
-        required: true
+        required: false
+        default: false
         type: string
       failure_telegram_chat_id:
-        required: true
-        type: string
-      github_run_id:
-        required: true
+        required: false
+        default: ''
         type: string
       runs_on:
         required: true
         type: string
-      runner_name:
-        required: true
-        type: string
       compiler_cache_version:
-        required: true
+        required: false
+        default: 'v0.0.1'
         type: string
       brownie_cache_version:
-        required: true
+        required: false
         type: string
+        default: 'v0.0.1'
       close_pr:
-        required: true
-        type: string
-      github_workspace:
-        required: true
+        required: false
+        default: 'false'
         type: string
       check_reviews:
-        required: true
-        type: string
-      home_path:
-        required: true
+        required: false
+        default: 'false'
         type: string
       cached_runner:
-        required: true
+        required: false
+        default: 'false'
         type: string
       be:
-        required: true
+        required: false
+        default: 'false'
         type: string
       from_pr:
         required: false
@@ -111,12 +105,14 @@ jobs:
     steps:
     - uses: hmarr/debug-action@v2
 
-    - uses: actions/checkout@v1
+    - name: Checking out code
+      uses: actions/checkout@v1
       with:
         ref: ${{ inputs.ref }}
         submodules: 'true'
 
-    - uses: actions/github-script@v3
+    - name: Get PR title
+      uses: actions/github-script@v3
       if: ${{ inputs.from_pr == 'true' }}
       id: get-pr-title
       with:
@@ -127,7 +123,8 @@ jobs:
           }
           return pull.title.replace(/\$/g, '💲');
 
-    - uses: actions/github-script@v3
+    - name: Get PR body
+      uses: actions/github-script@v3
       if: ${{ inputs.from_pr == 'true' }}
       id: get-pr-body
       with:
@@ -139,7 +136,8 @@ jobs:
           return pull.body.replace(/\r\n/g, ' 🐶 ').replace(/\$/g, '💲');
 
 
-    - uses: actions/github-script@v3
+    - name: Get PR author
+      uses: actions/github-script@v3
       if: ${{ inputs.from_pr == 'true' }}
       id: get-pr-author
       with:
@@ -150,11 +148,10 @@ jobs:
           }
           return pull.user.login;
 
-    - uses: actions/github-script@v3
+    - name: Pull down reviews
+      uses: actions/github-script@v3
       if: ${{ inputs.check_reviews == 'true' }}
       id: get-pr
-      env:
-        WORKING_FOLDER: '${{inputs.github_workspace}}'
       with:
         script: |
           const { data: reviews } = await github.pulls.listReviews({
@@ -167,11 +164,11 @@ jobs:
           core.info(`List of reviews:\n ${JSON.stringify(reviews_filtered)}`)
           return reviews_filtered.length
 
-    - name: 'check for reviews'
+    - name: Check Reviews
       if: ${{ inputs.check_reviews == 'true' && inputs.send  == 'true' && steps.get-pr.outputs.result < 1}}
       run: exit 1
 
-    - name: 'fail on no reviews'
+    - name: Fail on no reviews
       if: ${{ inputs.check_reviews == 'true' && failure() }}
       uses: peter-evans/create-or-update-comment@v1
       with:
@@ -181,16 +178,16 @@ jobs:
 
     - name: Create URL to the run output
       id: vars
-      run: echo ::set-output name=run-url::https://github.com/${{inputs.github_repository}}/actions/runs/${{inputs.github_run_id}}
+      run: echo ::set-output name=run-url::https://github.com/${{github.repository}}/actions/runs/$GITHUB_RUN_ID
 
     - name: Cache compiler installations
       if: ${{ inputs.cached_runner != 'true' }}
       uses: actions/cache@v2
       with:
         path: |
-          ${{inputs.home_path}}/.solcx
-          ${{inputs.home_path}}/.vvm
-        key: ${{ runner.os }}-${{ inputs.runner_name }}-compiler-cache-${{ inputs.compiler_cache_version }}
+          ~/.solcx
+          ~/.vvm
+        key: ${{ runner.os }}-compiler-cache-${{ inputs.compiler_cache_version }}
 
     - name: Setup node.js
       uses: actions/setup-node@v1
@@ -211,11 +208,11 @@ jobs:
       id: pip-cache
       with:
         path: |
-          ${{inputs.home_path}}/.cache/pip/
-        key: ${{ runner.os }}-${{ inputs.runner_name}}-pip-${{ hashFiles('**/requirements-dev.txt') }}
+          ~/.cache/pip/
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
         restore-keys: |
-          ${{ runner.os }}-${{ inputs.runner_name}}-pip-${{ hashFiles('**/requirements-dev.txt') }}
-          ${{ runner.os }}-${{ inputs.runner_name}}-pip-
+          ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
+          ${{ runner.os }}-pip-
 
     - name: Install python dependencies
       run: |
@@ -235,15 +232,16 @@ jobs:
       uses: martijnhols/actions-cache/restore@v3
       with:
         path: |
-          ${{inputs.home_path}}/.brownie
-          !${{inputs.home_path}}/.brownie/accounts
-        key: ${{ runner.os }}-${{ inputs.runner_name}}-brownie-cache-${{ inputs.brownie_cache_version }}
+          ~/.brownie
+          !~/.brownie/accounts
+        key: ${{ runner.os }}-brownie-cache-${{ inputs.brownie_cache_version }}
         restore-keys: |
-          ${{ runner.os }}-${{ inputs.runner_name}}-brownie-cache-${{ inputs.brownie_cache_version }}
-          ${{ runner.os }}-${{ inputs.runner_name}}-brownie-cache-*
-          ${{ runner.os }}-${{ inputs.runner_name}}-brownie-cache
+          ${{ runner.os }}-brownie-cache-${{ inputs.brownie_cache_version }}
+          ${{ runner.os }}-brownie-cache-*
+          ${{ runner.os }}-brownie-cache
 
     - name: delete .brownie/accounts after cache download
+      if: ${{ inputs.cached_runner != 'true' }}
       run: |
         rm -rf ~/.brownie/accounts
     
@@ -308,32 +306,16 @@ jobs:
         echo "::endgroup::"
         exit ${{ steps.fn.outputs.brownie-exit-code}}
 
-    - name: Read nonce
-      if: ${{ inputs.send  == 'true' }}
-      id: nonce
-      uses: juliangruber/read-file-action@v1
-      with:
-        path: ${{inputs.home_path}}/nonce.txt
-        trim: false
-
     - name: Nonce fail check
-      if: ${{ failure() && steps.nonce.outcome == 'failure' }}
+      if: inputs.send == 'true' && env.NONCE == ''
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
           > Did not find nonce.txt. Did you run with send=true without actually posting the transaction at the end of your function? Use the @sign decorator above your function.
 
-    - name: Read safe link
-      if: ${{ inputs.send  == 'true' }}
-      id: read-safe-link
-      uses: juliangruber/read-file-action@v1
-      with:
-        path: ${{inputs.home_path}}/safe.txt
-        trim: false
-
     - name: Safe url check
-      if: ${{ inputs.send == true && failure() && steps.read-safe-link.outcome == 'failure' }}
+      if: inputs.send == true && env.SAFE_LINK == ''
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
@@ -368,10 +350,10 @@ jobs:
       if: ${{ inputs.send  == 'true' && inputs.from_pr == 'true' }}
       run: |
           TELEGRAM_MESSAGE=$(cat << EOF
-          ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.read-safe-link.outputs.content }}) \`${{ steps.get-pr-title.outputs.result}}\`
+          ✍️ [${{ inputs.network}} #${{ env.NONCE }}](${{ env.SAFE_LINK }}) \`${{ steps.get-pr-title.outputs.result}}\`
           Sender: ${{ steps.get-pr-author.outputs.result }}
           Description: \`${{ steps.get-pr-body.outputs.result }}\`
-          Review [the code](${{ steps.pr-url.outputs.pr-url }}), verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ steps.read-safe-link.outputs.content }})
+          Review [the code](${{ steps.pr-url.outputs.pr-url }}), verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ env.SAFE_LINK }})
           EOF
           )
           echo "TELEGRAM_MESSAGE<<EOF" >> $GITHUB_ENV
@@ -382,11 +364,11 @@ jobs:
       if: ${{ inputs.send  == 'true' && inputs.from_pr == 'false' }}
       run: |
           TELEGRAM_MESSAGE=$(cat << EOF
-          ✍️ [${{ inputs.network}} #${{ steps.nonce.outputs.content }}](${{ steps.read-safe-link.outputs.content }}) \`${{ steps.get-pr-title.outputs.result}}\`
+          ✍️ [${{ inputs.network}} #${{ env.NONCE }}](${{ env.SAFE_LINK }}) \`${{ steps.get-pr-title.outputs.result}}\`
           Sender: ${{ inputs.job_author }} (via cronjob or manual trigger)
           Description: ${{ inputs.job_description }}
           Function ran: ${{ inputs.fn }} in ${{inputs.file}}.py
-          Verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ steps.read-safe-link.outputs.content }})
+          Verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ env.SAFE_LINK }})
           EOF
           )
           echo "TELEGRAM_MESSAGE<<EOF" >> $GITHUB_ENV
@@ -396,14 +378,14 @@ jobs:
     - name: New TX Telegram Alert - Robowoofy Alert Chat
       if: ${{ inputs.send == 'true' }}
       run: |
-        python3 -m multisig_ci send_and_pin_message ${{ secrets.TELEGRAM_TOKEN }} ${{ inputs.announcement_telegram_chat_id }} ${{ env.TELEGRAM_MESSAGE }}
+        python3 -m multisig_ci send_and_pin_message ${{ secrets.TELEGRAM_TOKEN }} ${{ inputs.announcement_telegram_chat_id }}
       continue-on-error: true
 
 
     - name: New TX Telegram Alert - MultiSig Chat
       if: ${{ inputs.send == 'true' }}
       run: |
-        python3 -m multisig_ci send_and_pin_message ${{ secrets.TELEGRAM_TOKEN }} ${{ inputs.group_telegram_chat_id }} ${{ env.TELEGRAM_MESSAGE }}
+        python3 -m multisig_ci send_and_pin_message ${{ secrets.TELEGRAM_TOKEN }} ${{ inputs.group_telegram_chat_id }}
       continue-on-error: true
 
     - name: Edit comment with full run message
@@ -412,9 +394,9 @@ jobs:
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > TX with nonce ${{ steps.nonce.outputs.content }} successfully sent: ${{ steps.vars.outputs.run-url }}. 
-          > Find your queued TX at ${{ steps.read-safe-link.outputs.content }}
-          > Your PR has been labeled with tag ${{inputs.network}} ${{ steps.nonce.outputs.content }}, which you can find here: https://github.com/yearn/strategist-ms/labels?q=${{ steps.nonce.outputs.content }}
+          > TX with nonce ${{ env.NONCE }} successfully sent: ${{ steps.vars.outputs.run-url }}. 
+          > Find your queued TX at ${{ env.SAFE_LINK }}
+          > Your PR has been labeled with tag ${{inputs.network}} ${{ env.NONCE }}, which you can find here: https://github.com/yearn/strategist-ms/labels?q=${{ env.NONCE }}
       continue-on-error: true
 
     - uses: actions-ecosystem/action-add-labels@v1
@@ -423,7 +405,7 @@ jobs:
         number: ${{ inputs.pull_request_number }}
         github_token: ${{ secrets.PAT }}
         labels: |
-          ${{ inputs.network }} #${{ steps.nonce.outputs.content }}
+          ${{ inputs.network }} #${{ env.NONCE }}
       continue-on-error: true
 
     - uses: peter-evans/close-pull@v1
