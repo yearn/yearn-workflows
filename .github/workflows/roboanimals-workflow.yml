@@ -378,14 +378,14 @@ jobs:
     - name: New TX Telegram Alert - Robowoofy Alert Chat
       if: ${{ inputs.send == 'true' }}
       run: |
-        python3 -m multisig_ci send_and_pin_message ${{ secrets.TELEGRAM_TOKEN }} ${{ inputs.announcement_telegram_chat_id }} ${{ env.TELEGRAM_MESSAGE }}
+        python3 -m multisig_ci send_and_pin_message ${{ secrets.TELEGRAM_TOKEN }} ${{ inputs.announcement_telegram_chat_id }}
       continue-on-error: true
 
 
     - name: New TX Telegram Alert - MultiSig Chat
       if: ${{ inputs.send == 'true' }}
       run: |
-        python3 -m multisig_ci send_and_pin_message ${{ secrets.TELEGRAM_TOKEN }} ${{ inputs.group_telegram_chat_id }} ${{ env.TELEGRAM_MESSAGE }}
+        python3 -m multisig_ci send_and_pin_message ${{ secrets.TELEGRAM_TOKEN }} ${{ inputs.group_telegram_chat_id }}
       continue-on-error: true
 
     - name: Edit comment with full run message
