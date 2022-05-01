@@ -456,9 +456,7 @@ jobs:
       if: always()
       run: |
         rm -rf ~/.brownie/accounts
-        rm -f ~/nonce.txt
         rm -f ~/alive.signal
-        rm -f ~/safe.txt
       continue-on-error: true
 
     - name: Save ".brownie" to cache
