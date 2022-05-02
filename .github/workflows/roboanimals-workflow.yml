@@ -182,7 +182,7 @@ jobs:
 
     - name: Cache compiler installations
       if: ${{ inputs.cached_runner != 'true' }}
-      uses: actions/cache@v2
+      uses: kx9x/cache@v3.0.2
       with:
         path: |
           ~/.solcx
@@ -204,7 +204,7 @@ jobs:
 
     - name: Restore pip cache
       if: ${{ inputs.cached_runner != 'true' }}
-      uses: actions/cache@v2
+      uses: kx9x/cache@v3.0.2
       id: pip-cache
       with:
         path: |
