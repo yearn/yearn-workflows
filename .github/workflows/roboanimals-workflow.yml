@@ -254,7 +254,6 @@ jobs:
 
     - name: Brownie compile
       if: ${{ inputs.fn != 'hydate_compiler_cache' }}
-      timeout-minutes: 3
       run: |
         brownie compile
 
@@ -380,7 +379,6 @@ jobs:
       run: |
         python3 -m multisig_ci send_and_pin_message ${{ secrets.TELEGRAM_TOKEN }} ${{ inputs.announcement_telegram_chat_id }}
       continue-on-error: true
-
 
     - name: New TX Telegram Alert - MultiSig Chat
       if: ${{ inputs.send == 'true' }}
