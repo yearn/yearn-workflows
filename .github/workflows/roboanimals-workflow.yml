@@ -101,6 +101,7 @@ on:
 jobs:
   roboanimalsWorkflow:
     runs-on: ${{ inputs.runs_on }}
+    container: ubuntu:18.04
     timeout-minutes: 60
     steps:
     - uses: hmarr/debug-action@v2
