@@ -102,7 +102,7 @@ jobs:
   roboanimalsWorkflow:
     runs-on: ${{ inputs.runs_on }}
     container: 
-      image: ubuntu:18.04
+      image: ubuntu:20.04
       options: --user root
     timeout-minutes: 60
     steps:
