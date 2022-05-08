@@ -192,32 +192,14 @@ jobs:
         body: |
           > Review requirement failed. Get at least one approval before sending.
 
-    - name: Setup node.js
-      uses: actions/setup-node@v1
-      with:
-        node-version: '12.x'
-
-    - name: Install ganache
-      run: npm install -g ganache-cli@beta
+    - name: Create URL to the run output
+      id: vars
+      run: echo ::set-output name=run-url::https://github.com/${{github.repository}}/actions/runs/$GITHUB_RUN_ID
 
     - name: Set up python 3.8
       uses: actions/setup-python@v2
       with:
         python-version: 3.8
-
-    - name: Install python dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install wheel
-        pip install -r requirements-dev.txt -f https://pypi.org/project/multisig-ci
-
-    - name: Grab lock message
-      if: ${{ inputs.from_pr == 'true' && inputs.send == 'true'  }}
-      uses: peter-evans/create-or-update-comment@v1
-      with:
-        comment-id: ${{ inputs.comment-id }}
-        body: |
-          > 🔓 Grabbing lock for ${{ inputs.network }}.... Taking too long? [Read this.](https://github.com/yearn/yearn-workflows/tree/master#stuck-on-grabbing-lock)
 
     - name: Lock on send=true to avoid nonce race condition
       if: ${{ inputs.send  == 'true' }}
@@ -233,18 +215,6 @@ jobs:
         body: |
           > 🔐 Successfully grabbed lock for ${{ inputs.network }}
           >
-    
-    - name: Add network config
-      timeout-minutes: 1
-      run: |
-        brownie networks list true
-        cp network-config.yaml ~/.brownie/
-        brownie networks list true
-
-    - name: Brownie compile
-      if: ${{ inputs.fn != 'hydate_compiler_cache' }}
-      run: |
-        brownie compile
 
     - name: Run Function
       id: fn
@@ -260,42 +230,20 @@ jobs:
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         GITHUB_ACTION_SEND: ${{ inputs.send }}
         BE: ${{ inputs.be }}
-      run: |
-        python3 -m multisig_ci brownie run ${{ inputs.file }} ${{ inputs.fn }} --network ${{ inputs.network }}-main-fork 1>output.txt 2>error.txt || EXIT_CODE=$?
-        echo "::set-output name=brownie-exit-code::$EXIT_CODE"
-        echo "::group:: Output"
-        cat output.txt
-        echo "::endgroup::"
-        echo "::group:: Error"
-        cat error.txt
-        echo "::endgroup::"
-        exit 0
+      uses: yearn/yearn-workflows@v0.2.0
+      with:
+        file: ${{inputs.file}} 
+        network: ${{inputs.network}}
+        fn: ${{inputs.fn}}
 
     - name: Set timeout
       if: failure()
       id: timeout
       run: |
-        echo "::group:: Output"
-        cat output.txt
-        echo "::endgroup::"
-        echo "::group:: Error"
-        cat error.txt
-        echo "::endgroup::"
         echo "::set-output name=brownie-timeout::true"
 
-    - name: Check failure
-      id: failcheck
-      run: |
-        echo "::group:: Output"
-        cat output.txt
-        echo "::endgroup::"
-        echo "::group:: Error"
-        cat error.txt
-        echo "::endgroup::"
-        exit ${{ steps.fn.outputs.brownie-exit-code}}
-
     - name: Nonce fail check, add comment
-      if: inputs.send == 'true' && env.NONCE == ''
+      if: inputs.send == 'true' && steps.fn.outputs.nonce == ''
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
@@ -305,18 +253,18 @@ jobs:
     - name: New TX Telegram Alert - MultiSig Chat
       env:
         TELEGRAM_MESSAGE: "Oof, ${{ steps.get-pr-author.outputs.result }} just tried to send a transaction without putting the @sign decorator above the function... Please join me in shaming this 🤡"
-      if: inputs.send == 'true' && env.NONCE == ''
+      if: inputs.send == 'true' &&  steps.fn.outputs.nonce ''
       run: |
         python3 -m multisig_ci send_and_pin_message ${{ secrets.TELEGRAM_TOKEN }} ${{ inputs.group_telegram_chat_id }}
       continue-on-error: true
 
     - name: Nonce fail check
-      if: inputs.send == 'true' && env.NONCE == ''
+      if: inputs.send == 'true' && steps.fn.outputs.nonce ''
       run: |
         exit 1
 
     - name: Safe url check, add comment
-      if: inputs.send == 'true' && env.SAFE_LINK == ''
+      if: inputs.send == 'true' && steps.fn.outputs.safe_link == ''
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
@@ -324,16 +272,15 @@ jobs:
           > Fatal error. Did not find safe.txt.
 
     - name: Safe fail check, add comment
-      if: inputs.send == 'true' && env.SAFE_LINK == ''
+      if: inputs.send == 'true' && steps.fn.outputs.safe_link == ''
       run: |
         exit 1
-
+  
     - name: Fix ansi codes
       if: always() && inputs.from_pr == 'true'
       run: |
         sed -i 's/\x1b\[[0-9;]*m//g' ./error.txt
         sed -i 's/\x1b\[[0-9;]*m//g' ./output.txt
-
     - name: Read error.txt
       if: always() && inputs.from_pr == 'true'
       id: read_error
@@ -347,7 +294,7 @@ jobs:
       uses: juliangruber/read-file-action@v1
       with:
         path: ./output.txt
-      
+
     - name: Edit comment with error message
       if: ${{ failure() && inputs.from_pr == 'true' }}
       uses: peter-evans/create-or-update-comment@v1
@@ -391,10 +338,10 @@ jobs:
       if: ${{ inputs.send  == 'true' && inputs.from_pr == 'true' }}
       run: |
           TELEGRAM_MESSAGE=$(cat << EOF
-          ✍️ [${{ inputs.network}} #${{ env.NONCE }}](${{ env.SAFE_LINK }}) \`${{ steps.get-pr-title.outputs.result}}\`
+          ✍️ [${{ inputs.network}} #${{ steps.fn.outputs.nonce }}](${{ steps.fn.outputs.safe_link }}) \`${{ steps.get-pr-title.outputs.result}}\`
           Sender: ${{ steps.get-pr-author.outputs.result }}
           Description: \`${{ steps.get-pr-body.outputs.result }}\`
-          Review [the code](${{ steps.pr-url.outputs.pr-url }}), verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ env.SAFE_LINK }})
+          Review [the code](${{ steps.pr-url.outputs.pr-url }}), verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ steps.fn.outputs.safe_link }})
           EOF
           )
           echo "TELEGRAM_MESSAGE<<EOF" >> $GITHUB_ENV
@@ -405,11 +352,11 @@ jobs:
       if: ${{ inputs.send  == 'true' && inputs.from_pr == 'false' }}
       run: |
           TELEGRAM_MESSAGE=$(cat << EOF
-          ✍️ [${{ inputs.network}} #${{ env.NONCE }}](${{ env.SAFE_LINK }}) \`${{ steps.get-pr-title.outputs.result}}\`
+          ✍️ [${{ inputs.network}} #${{ steps.fn.outputs.nonce }}](${{ steps.fn.outputs.safe_link }}) \`${{ steps.get-pr-title.outputs.result}}\`
           Sender: ${{ inputs.job_author }} (via cronjob or manual trigger)
           Description: ${{ inputs.job_description }}
           Function ran: ${{ inputs.fn }} in ${{inputs.file}}.py
-          Verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ env.SAFE_LINK }})
+          Verify [the output](${{ steps.vars.outputs.run-url }}), and [sign here](${{ steps.fn.outputs.safe_link }})
           EOF
           )
           echo "TELEGRAM_MESSAGE<<EOF" >> $GITHUB_ENV
@@ -434,14 +381,14 @@ jobs:
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > ✅ TX with nonce ${{ env.NONCE }} successfully sent. Find output logs [here](${{ steps.vars.outputs.run-url }}). 
-          > Find your queued TX on the [Gnosis UI](${{ env.SAFE_LINK }})
+          > ✅ TX with nonce ${{ steps.fn.outputs.nonce }} successfully sent. Find output logs [here](${{ steps.vars.outputs.run-url }}). 
+          > Find your queued TX on the [Gnosis UI](${{ steps.fn.outputs.safe_link }})
           >
-          > Your PR has been labeled with tag ${{inputs.network}} ${{ env.NONCE }}, which you can find [here](https://github.com/yearn/strategist-ms/labels?q=${{ env.NONCE }}).
+          > Your PR has been labeled with tag ${{inputs.network}} ${{ steps.fn.outputs.nonce }}, which you can find [here](https://github.com/yearn/strategist-ms/labels?q=${{ steps.fn.outputs.nonce }}).
           
           Output:
           ```
-          ${{ steps.read_output.outputs.content }}         
+          ${{ steps.read_output.outputs.content }}
           ```
       continue-on-error: true
 
@@ -451,7 +398,7 @@ jobs:
         number: ${{ inputs.pull_request_number }}
         github_token: ${{ secrets.PAT }}
         labels: |
-          ${{ inputs.network }} #${{ env.NONCE }}
+          ${{ inputs.network }} #${{ steps.fn.outputs.nonce }}
       continue-on-error: true
 
     - uses: peter-evans/close-pull@v1
@@ -496,11 +443,4 @@ jobs:
         token: ${{ secrets.TELEGRAM_TOKEN }}
         message: |
           Grrrr grrrrr grrrrr ${{ steps.vars.outputs.run-url }} brownie timed out!
-      continue-on-error: true
-
-    - name: cleanup files
-      if: always()
-      run: |
-        rm -rf ~/.brownie/accounts
-        rm -f ~/alive.signal
       continue-on-error: true
