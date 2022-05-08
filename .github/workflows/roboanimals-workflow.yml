@@ -228,13 +228,13 @@ jobs:
     - name: New TX Telegram Alert - MultiSig Chat
       env:
         TELEGRAM_MESSAGE: "Oof, ${{ steps.get-pr-author.outputs.result }} just tried to send a transaction without putting the @sign decorator above the function... Please join me in shaming this 🤡"
-      if: inputs.send == 'true' &&  steps.fn.outputs.nonce ''
+      if: inputs.send == 'true' && steps.fn.outputs.nonce == ''
       run: |
         python3 -m multisig_ci send_and_pin_message ${{ secrets.TELEGRAM_TOKEN }} ${{ inputs.group_telegram_chat_id }}
       continue-on-error: true
 
     - name: Nonce fail check
-      if: inputs.send == 'true' && steps.fn.outputs.nonce ''
+      if: inputs.send == 'true' && steps.fn.outputs.nonce == ''
       run: |
         exit 1
 
