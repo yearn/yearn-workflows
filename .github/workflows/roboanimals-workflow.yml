@@ -102,7 +102,7 @@ jobs:
   roboanimalsWorkflow:
     runs-on: ${{ inputs.runs_on }}
     container: 
-      image: ubuntu:20.04
+      image: ubuntu:latest
       options: --user root
     timeout-minutes: 60
     steps:
@@ -112,7 +112,10 @@ jobs:
       uses: actions/checkout@v3.0.2
       with:
         ref: ${{ inputs.ref }}
-        submodules: 'true'
+
+    - name: Checkout submodules
+      run: |
+        git submodule update --init --recursive
 
     - name: Get PR title
       uses: actions/github-script@v3
