@@ -230,7 +230,7 @@ jobs:
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         GITHUB_ACTION_SEND: ${{ inputs.send }}
         BE: ${{ inputs.be }}
-      uses: yearn/yearn-workflows@v0.2.0
+      uses: yearn/yearn-workflows@v0.2.1
       with:
         file: ${{inputs.file}} 
         network: ${{inputs.network}}
