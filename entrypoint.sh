@@ -2,10 +2,10 @@
 ln -s /root/.solcx /github/home/.solcx
 ln -s /root/.vvm /github/home/.vvm
 
-pip install -r requirements-dev.txt
-/root/.local/bin/brownie
+sudo pip install -r requirements-dev.txt
+brownie
 cp network-config.yaml ~/.brownie/network-config.yaml
-/root/.local/bin/brownie networks list true
+brownie networks list true
 brownie compile
 python3 -m multisig_ci brownie run $1 $2 --network $3-main-fork 1>output.txt 2>error.txt
 EXIT_CODE=$?
