@@ -124,6 +124,9 @@ jobs:
           > 🚀 Agent ${{steps.runner_name.outputs.runner_name }} has picked up this request, follow progress [here](${{ steps.vars.outputs.run-url }})
           >
 
+    - name: install git
+      run: sudo apt install git
+
     - name: Checking out code
       uses: actions/checkout@v3.0.2
       with:
