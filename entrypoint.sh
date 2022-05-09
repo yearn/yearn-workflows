@@ -1,6 +1,6 @@
 #!/bin/bash
-
-sudo pip install -r requirements-dev.txt
+export PATH=/home/robowoofy/.local/bin:${PATH}
+pip install -r requirements-dev.txt
 brownie
 cp network-config.yaml ~/.brownie/network-config.yaml
 brownie networks list true
