@@ -5,6 +5,9 @@ sudo chown -R 1000:1000 /github/workspace
 sudo chown -R 1000:1000 /github/home
 sudo chown -R 1000:1000 /github/file_commands
 
+ln -s ~/.solcx /github/home/.solcx
+ln -s ~/.vvm /github/home/.vvm
+
 pip install -r requirements-dev.txt
 brownie
 cp network-config.yaml ~/.brownie/network-config.yaml
