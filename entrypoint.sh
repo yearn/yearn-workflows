@@ -1,8 +1,6 @@
 #!/bin/bash
-ln -s /root/.solcx /github/home/.solcx
-ln -s /root/.vvm /github/home/.vvm
-
-sudo pip install -r requirements-dev.txt
+export PATH=/home/robowoofy/.local/bin:${PATH}
+pip install -r requirements-dev.txt
 brownie
 cp network-config.yaml ~/.brownie/network-config.yaml
 brownie networks list true
