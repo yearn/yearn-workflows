@@ -1,5 +1,8 @@
 #!/bin/bash
 export PATH=/home/robowoofy/.local/bin:${PATH}
+sudo chown -R 1001:1000 /github/workspace
+sudo chown -R 1001:1000 /github/home
+
 pip install -r requirements-dev.txt
 brownie
 cp network-config.yaml ~/.brownie/network-config.yaml
