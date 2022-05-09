@@ -21,5 +21,8 @@ COPY requirements.txt /requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 RUN export PATH=/home/pn/.local/bin:${PATH}
 
+RUN ln -s ~/.solcx /github/home/.solcx
+RUN ln -s ~/.vvm /github/home/.vvm
+
 COPY entrypoint.sh /home/pn/entrypoint.sh
 ENTRYPOINT [ "/home/pn/entrypoint.sh" ]
