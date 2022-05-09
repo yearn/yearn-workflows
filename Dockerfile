@@ -13,12 +13,11 @@ RUN python download_compilers.py
 COPY requirements.txt /requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN groupadd --gid 1001 robowoofy \
-    && useradd --uid 1001 --gid 1001 -m robowoofy \
+RUN useradd --uid 1001 --gid 1000 -m robowoofy \
     && echo robowoofy ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/robowoofy \
     && chmod 0440 /etc/sudoers.d/robowoofy
 
-RUN chown -R 1001:1001 /home/robowoofy/
+RUN chown -R 1001:1000 /home/robowoofy/
 
 USER robowoofy
 COPY entrypoint.sh /home/robowoofy/entrypoint.sh
