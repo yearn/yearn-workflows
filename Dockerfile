@@ -10,7 +10,7 @@ RUN chown -R 1000:1000 /home/pn/
 USER pn
 
 RUN sudo npm install -g ganache-cli@beta
-RUN pip install --no-cache-dir --force --upgrade pip setuptools
+RUN pip install --force --upgrade pip setuptools
 RUN pip install --user pipx
 RUN /home/pn/.local/bin/pipx install eth-brownie==1.17
 RUN python -m pipx ensurepath --force
@@ -18,7 +18,7 @@ RUN pip install requests
 COPY download_compilers.py /download_compilers.py
 RUN python download_compilers.py
 COPY requirements.txt /requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install -r requirements.txt
 RUN export PATH=/home/pn/.local/bin:${PATH}
 
 COPY entrypoint.sh /home/pn/entrypoint.sh
