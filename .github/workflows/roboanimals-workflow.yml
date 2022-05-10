@@ -226,6 +226,8 @@ jobs:
       id: fn
       timeout-minutes: 45
       env:
+        LD_LIBRARY_PATH: /usr/local/lib
+        pythonLocation: /usr/local/bin/
         COORDINAPE_BEARER_TOKEN: ${{ secrets.COORDINAPE_BEARER_TOKEN }}
         POLYGONSCAN_TOKEN: ${{ secrets.POLYGONSCAN_TOKEN }}
         FTMSCAN_TOKEN: ${{ secrets.FTMSCAN_TOKEN }}
