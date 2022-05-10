@@ -35,6 +35,7 @@ echo "::endgroup::"
 echo "::set-output name=nonce::$NONCE"
 echo "::set-output name=safe_link::$SAFE_LINK"
 echo $GITHUB_ACTION_SEND
+echo $EXIT_CODE
 
 if [[ "$GITHUB_ACTION_SEND" == "true" && "$NONCE" == "" ]]
 then
@@ -45,5 +46,6 @@ then
     echo "::set-output name=error-reason::'failed to find safe link'"
     exit 1
 else
+    echo "Exiting with $EXIT_CODE"
     exit $EXIT_CODE
 fi
