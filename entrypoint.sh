@@ -6,23 +6,16 @@ sudo chown -R 1000:1000 /github/workspace
 sudo chown -R 1000:1000 /github/home
 sudo chown -R 1000:1000 /github/file_commands
 
-sudo chown -R 1000:1000 /home/pn/.solcx
-sudo chown -R 1000:1000 /home/pn/.vvm
-sudo chown -R 1000:1000 /home/pn/.cache
-
 ln -s /home/pn/.solcx /github/home/.solcx
 ln -s /home/pn/.vvm /github/home/.vvm
 ln -s /home/pn/.cache /github/home/.cache
 
 sudo chown -R 1000:1000 /github/home
 
-pip install -r requirements-dev.txt
-brownie
+#pip install -r requirements-dev.txt
+mkdir ~/.brownie
 cp network-config.yaml ~/.brownie/network-config.yaml
-brownie networks list true
-brownie compile
-python3 -m multisig_ci brownie run $1 $2 --network $3-main-fork 1>output.txt 2>error.txt
-EXIT_CODE=$?
+python3 -m multisig_ci brownie run $1 $2 --network $3-main-fork 1>output.txt 2>error.txt || EXIT_CODE=$?
 echo "::set-output name=brownie-exit-code::$EXIT_CODE"
 
 echo "::group:: Output"
