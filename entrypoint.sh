@@ -6,13 +6,13 @@ sudo chown -R 1000:1000 /github/workspace
 sudo chown -R 1000:1000 /github/home
 sudo chown -R 1000:1000 /github/file_commands
 
-sudo chown -R 1000:1000 ~/.solcx
-sudo chown -R 1000:1000 ~/.vvm
-sudo chown -R 1000:1000 ~/cache
+sudo chown -R 1000:1000 /home/pn/.solcx
+sudo chown -R 1000:1000 /home/pn/.vvm
+sudo chown -R 1000:1000 /home/pn/.cache
 
-ln -s ~/.solcx /github/home/.solcx
-ln -s ~/.vvm /github/home/.vvm
-ln -s ~/.cache /github/home/.cache
+ln -s /home/pn/.solcx /github/home/.solcx
+ln -s /home/pn/.vvm /github/home/.vvm
+ln -s /home/pn/.cache /github/home/.cache
 
 sudo chown -R 1000:1000 /github/home
 
