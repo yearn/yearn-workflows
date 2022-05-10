@@ -1,12 +1,14 @@
 #!/bin/bash
 export PATH=/home/pn/.local/bin:${PATH}
 export PATH=/github/home/.local/bin:${PATH}
-sudo chown -R 1000:1000 /github/workspace
-sudo chown -R 1000:1000 /github/home
-sudo chown -R 1000:1000 /github/file_commands
 
 ln -s ~/.solcx /github/home/.solcx
 ln -s ~/.vvm /github/home/.vvm
+ln -s ~/.cache /github/home/.cache
+
+sudo chown -R 1000:1000 /github/workspace
+sudo chown -R 1000:1000 /github/home
+sudo chown -R 1000:1000 /github/file_commands
 
 pip install -r requirements-dev.txt
 brownie
