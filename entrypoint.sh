@@ -12,7 +12,7 @@ ln -s /home/pn/.cache /github/home/.cache
 mkdir /github/home/.local
 ln -s /home/pn/.local/bin /github/home/.local/bin
 
-pip install -v -r requirements-dev.txt
+#pip install -v -r requirements-dev.txt
 mkdir ~/.brownie
 cp network-config.yaml ~/.brownie/network-config.yaml
 python3 -c "import site;print([p for p in site.getsitepackages() if p.endswith(('site-packages', 'dist-packages')) ][0])"
