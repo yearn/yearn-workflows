@@ -18,7 +18,7 @@ RUN pip install requests
 COPY download_compilers.py /download_compilers.py
 RUN python download_compilers.py
 COPY requirements.txt /requirements.txt
-RUN pip install -r requirements.txt
+RUN pip install -v -r requirements.txt
 RUN export PATH=/home/pn/.local/bin:${PATH}
 
 COPY entrypoint.sh /home/pn/entrypoint.sh
