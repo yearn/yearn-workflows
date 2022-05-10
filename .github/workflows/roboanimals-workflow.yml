@@ -362,23 +362,23 @@ jobs:
         reaction-type: hooray
       continue-on-error: true
 
-    - name: Telegram Alert On Infra Failure
-      if: ${{ failure() && steps.failcheck.outcome == 'success' }}
-      uses: appleboy/telegram-action@master
-      with:
-        disable_web_page_preview: true 
-        to: ${{ inputs.failure_telegram_chat_id}}
-        token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: |
-          Grrrr grrrrr grrrrr ${{ steps.vars.outputs.run-url }} pipeline failed even though the brownie function succeeded!
-      continue-on-error: true
+    # - name: Telegram Alert On Infra Failure
+    #   if: ${{ failure() && steps.failcheck.outcome == 'success' }}
+    #   uses: appleboy/telegram-action@master
+    #   with:
+    #     disable_web_page_preview: true 
+    #     to: ${{ inputs.failure_telegram_chat_id}}
+    #     token: ${{ secrets.TELEGRAM_TOKEN }}
+    #     message: |
+    #       Grrrr grrrrr grrrrr ${{ steps.vars.outputs.run-url }} pipeline failed even though the brownie function succeeded!
+    #   continue-on-error: true
 
-    - name: Telegram Alert On Brownie Timeout
-      if: ${{ failure() && steps.timeout.outputs.brownie-timeout == 'true' }}
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ inputs.failure_telegram_chat_id }}
-        token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: |
-          Grrrr grrrrr grrrrr ${{ steps.vars.outputs.run-url }} brownie timed out!
-      continue-on-error: true
+    # - name: Telegram Alert On Brownie Timeout
+    #   if: ${{ failure() && steps.timeout.outputs.brownie-timeout == 'true' }}
+    #   uses: appleboy/telegram-action@master
+    #   with:
+    #     to: ${{ inputs.failure_telegram_chat_id }}
+    #     token: ${{ secrets.TELEGRAM_TOKEN }}
+    #     message: |
+    #       Grrrr grrrrr grrrrr ${{ steps.vars.outputs.run-url }} brownie timed out!
+    #   continue-on-error: true
