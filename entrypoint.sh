@@ -5,6 +5,7 @@ export PATH=/github/home/.local/bin:${PATH}
 sudo chown -R 1000:1000 /github/workspace
 sudo chown -R 1000:1000 /github/home
 sudo chown -R 1000:1000 /github/file_commands
+sudo chown 1000:1000 /home/pn/.local/lib/python3.9/site-packages/
 
 ln -s /home/pn/.solcx /github/home/.solcx
 ln -s /home/pn/.vvm /github/home/.vvm
