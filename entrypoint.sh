@@ -10,8 +10,6 @@ ln -s /home/pn/.solcx /github/home/.solcx
 ln -s /home/pn/.vvm /github/home/.vvm
 ln -s /home/pn/.cache /github/home/.cache
 
-sudo chown -R 1000:1000 /github/home
-
 #pip install -r requirements-dev.txt
 mkdir ~/.brownie
 cp network-config.yaml ~/.brownie/network-config.yaml
