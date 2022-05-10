@@ -11,8 +11,9 @@ ln -s /home/pn/.vvm /github/home/.vvm
 ln -s /home/pn/.cache /github/home/.cache
 mkdir /github/home/.local
 mkdir /github/home/.local/bin
-cp -r /home/pn/.local/bin /github/home/.local/bin
-ls -l /github/home/.local/bin
+cp -r /home/pn/.local/bin/ /github/home/.local/bin/
+ls -l /github/home/.local/bin/
+ls -l /home/pn/.local/bin/
 
 pip install -v -r requirements-dev.txt
 mkdir ~/.brownie
