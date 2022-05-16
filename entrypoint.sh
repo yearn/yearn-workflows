@@ -5,7 +5,7 @@ export PATH=/github/home/.local/bin:${PATH}
 sudo chown -R 1000:1000 /github/workspace
 sudo chown -R 1000:1000 /github/home
 sudo chown -R 1000:1000 /github/file_commands
-sudo chown 1000:1000 /home/pn/.local/lib/python3.9/site-packages/
+#sudo chown 1000:1000 /home/pn/.local/lib/python3.9/site-packages/
 
 ln -s /home/pn/.solcx /github/home/.solcx
 ln -s /home/pn/.vvm /github/home/.vvm
@@ -15,7 +15,7 @@ cp -r /home/pn/.local/bin/ /github/home/.local/
 ls -l /github/home/.local/bin/
 ls -l /home/pn/.local/bin/
 
-pip install -v -r requirements-dev.txt
+#pip install -v -r requirements-dev.txt
 mkdir ~/.brownie
 cp network-config.yaml ~/.brownie/network-config.yaml
 python3 -c "import site;print([p for p in site.getsitepackages() if p.endswith(('site-packages', 'dist-packages')) ][0])"
