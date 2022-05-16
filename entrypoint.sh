@@ -2,9 +2,13 @@
 export PATH=/home/pn/.local/bin:${PATH}
 export PATH=/github/home/.local/bin:${PATH}
 
-ln -s /home/pn/.solcx /github/home/.solcx
-ln -s /home/pn/.vvm /github/home/.vvm
-ln -s /home/pn/.cache /github/home/.cache
+sudo chown -R 1000:1000 /github/workspace
+sudo chown -R 1000:1000 /github/home
+sudo chown -R 1000:1000 /github/file_commands
+
+ln -s /home/pn/.solcx /github/home/
+ln -s /home/pn/.vvm /github/home/
+ln -s /home/pn/.cache /github/home/
 
 VIRTUAL_ENV=/home/pn/.local/pipx/venvs
 python3 -m venv $VIRTUAL_ENV
@@ -12,6 +16,8 @@ PATH="$VIRTUAL_ENV/bin:$PATH"
 
 mkdir ~/.brownie
 cp network-config.yaml ~/.brownie/network-config.yaml
+python3 -c "import site;print([p for p in site.getsitepackages() if p.endswith(('site-packages', 'dist-packages')) ][0])"
+python3 -c "import sys; print(sys.prefix)"
 python3 -m multisig_ci brownie run $1 $2 --network $3-main-fork 1>output.txt 2>error.txt || EXIT_CODE=$?
 echo "::set-output name=brownie-exit-code::$EXIT_CODE"
 
