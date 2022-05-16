@@ -16,9 +16,14 @@ ls -l /github/home/.local/bin/
 ls -l /home/pn/.local/bin/
 
 #pip install -v -r requirements-dev.txt
+VIRTUAL_ENV=/home/pn/.local/pipx/venvs
+python3 -m venv $VIRTUAL_ENV
+PATH="$VIRTUAL_ENV/bin:$PATH"
+
 mkdir ~/.brownie
 cp network-config.yaml ~/.brownie/network-config.yaml
 python3 -c "import site;print([p for p in site.getsitepackages() if p.endswith(('site-packages', 'dist-packages')) ][0])"
+python3 -c "import sys; print(sys.prefix)"
 python3 -m multisig_ci brownie run $1 $2 --network $3-main-fork 1>output.txt 2>error.txt || EXIT_CODE=$?
 echo "::set-output name=brownie-exit-code::$EXIT_CODE"
 
