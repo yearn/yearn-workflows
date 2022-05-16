@@ -8,3 +8,6 @@ tomli==1.2.1
 tenacity==8.0.1
 psutil==5.8.0
 multisig-ci==0.1.6
+aiostream==0.4.4
+aiofile==3.7.4
+caio==0.9.5

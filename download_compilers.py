@@ -1,9 +1,13 @@
 import requests
 import os, stat
+from aiostream import stream
+from aiofile import async_open
+import aiohttp
+import asyncio
 
 vyper_releases = [
-    "https://github.com/vyperlang/vyper/releases/download/v0.3.3/vyper.0.3.3+commit.48e326f0.linux"
-    "https://github.com/vyperlang/vyper/releases/download/v0.3.2/vyper.0.3.2+commit.3b6a4117.linux"
+    "https://github.com/vyperlang/vyper/releases/download/v0.3.3/vyper.0.3.3+commit.48e326f0.linux",
+    "https://github.com/vyperlang/vyper/releases/download/v0.3.2/vyper.0.3.2+commit.3b6a4117.linux",
     "https://github.com/vyperlang/vyper/releases/download/v0.3.1/vyper.0.3.1.linux",
     "https://github.com/vyperlang/vyper/releases/download/v0.3.0/vyper.0.3.0+commit.8a23feb.linux",
     "https://github.com/vyperlang/vyper/releases/download/v0.2.16/vyper.0.2.16+commit.59e1bdd.linux",
@@ -26,8 +30,8 @@ vyper_releases = [
 solc_url_prefix = "https://solc-bin.ethereum.org/linux-amd64/solc-linux-amd64-"
 
 solc_release_versions = [
-    "v0.8.13+commit.abaa5c0e"
-    "v0.8.12+commit.f00d7308"
+    "v0.8.13+commit.abaa5c0e",
+    "v0.8.12+commit.f00d7308",
     "v0.8.11+commit.d7f03943",
     "v0.8.10+commit.fc410830",
     "v0.8.9+commit.e5eed63a",
@@ -101,20 +105,37 @@ solc_release_versions = [
 
 home_directory = os.environ.get("HOME")
 
-def hydrate_compiler_cache():
+async def process_write(data):
+    file_name = data['file_name']
+    to_write = data['to_write']
+
+    async with async_open(file_name, "wb+") as f:
+        await f.write(to_write)
+        st = os.stat(file_name)
+        os.chmod(file_name, st.st_mode | stat.S_IEXEC)
+
+    print(f"done writing {file_name}")
+
+async def fetch(session, url):
+    async with session.get(url) as resp:
+        print(f"url is {url}, status is {resp.status}")
+        print(resp.status)
+        res = {}
+        res['file_name'] = urls_to_name[url]
+        res['to_write'] = await resp.read()
+        return res
+
+async def hydrate_compiler_cache():
+    global urls_to_name
+    urls_to_name = {}
     for vyper_release in vyper_releases:
         mod = vyper_release.index("+") if "+" in vyper_release else vyper_release.index(".linux")
         name = vyper_release[vyper_release.index("vyper.") : mod]
-        print("Downloading " + name)
-        r = requests.get(vyper_release, allow_redirects=True)
         vvm_folder = os.path.join(home_directory, ".vvm/")
         if not os.path.exists(vvm_folder):
             os.mkdir(vvm_folder)
         file_name = vvm_folder + name.replace(".", "-", 1)
-        with open(file_name, "wb+") as f:
-            f.write(r.content)
-            st = os.stat(file_name)
-            os.chmod(file_name, st.st_mode | stat.S_IEXEC)
+        urls_to_name[vyper_release] = file_name
 
     for solc_release_version in solc_release_versions:
         solc_release_url = solc_url_prefix + solc_release_version
@@ -122,16 +143,18 @@ def hydrate_compiler_cache():
         start = solc_release_url.index(prefix) + len(prefix)
         end = solc_release_url.index("+")
         name = "solc" + solc_release_url[start:end]
-        print("Downloading " + name)
-        r = requests.get(solc_release_url, allow_redirects=True)
         solcx_folder = os.path.join(home_directory, ".solcx/")
         if not os.path.exists(solcx_folder):
             os.mkdir(solcx_folder)
         file_name = os.path.join(home_directory, ".solcx/") + name
-        with open(file_name, "wb+") as f:
-            f.write(r.content)
-            st = os.stat(file_name)
-            os.chmod(file_name, st.st_mode | stat.S_IEXEC)
+        urls_to_name[solc_release_url] = file_name
+
+    async with aiohttp.ClientSession() as session:
+        ws = stream.repeat(session)
+        xs = stream.zip(ws, stream.iterate(list(urls_to_name.keys())))
+        ys = stream.starmap(xs, fetch, ordered=False, task_limit=30)
+        zs = stream.map(ys, process_write)
+        await zs
 
 if __name__ == '__main__':
-    hydrate_compiler_cache()
+    asyncio.run(hydrate_compiler_cache())
