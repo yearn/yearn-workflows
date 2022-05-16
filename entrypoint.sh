@@ -2,17 +2,9 @@
 export PATH=/home/pn/.local/bin:${PATH}
 export PATH=/github/home/.local/bin:${PATH}
 
-# sudo chown -R 1000:1000 /github/workspace
-# sudo chown -R 1000:1000 /github/home
-# sudo chown -R 1000:1000 /github/file_commands
-
 ln -s /home/pn/.solcx /github/home/.solcx
 ln -s /home/pn/.vvm /github/home/.vvm
 ln -s /home/pn/.cache /github/home/.cache
-mkdir /github/home/.local
-cp -r /home/pn/.local/bin/ /github/home/.local/
-ls -l /github/home/.local/bin/
-ls -l /home/pn/.local/bin/
 
 VIRTUAL_ENV=/home/pn/.local/pipx/venvs
 python3 -m venv $VIRTUAL_ENV
