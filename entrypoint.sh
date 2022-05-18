@@ -6,8 +6,8 @@ sudo chown -R 1000:1000 /github/workspace
 sudo chown -R 1000:1000 /github/home
 sudo chown -R 1000:1000 /github/file_commands
 
-ln -s /home/pn/.solcx /github/home/
-ln -s /home/pn/.vvm /github/home/
+export VVM_BINARY_PATH=/home/pn/.vvm
+export SOLCX_BINARY_PATH=/home/pn/.solcx
 ln -s /home/pn/.cache /github/home/
 
 VIRTUAL_ENV=/home/pn/.local/pipx/venvs
