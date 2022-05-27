@@ -1,4 +1,4 @@
-FROM nikolaik/python-nodejs:python3.8-nodejs16
+FROM nikolaik/python-nodejs:python3.8-nodejs16-bullseye
 
 RUN apt-get update \
     && apt-get install -y sudo
@@ -8,7 +8,6 @@ RUN echo pn ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/pn \
 
 RUN chown -R 1000:1000 /home/pn/
 USER pn
-
 
 RUN sudo npm install -g ganache-cli@beta
 RUN pip install --force --upgrade pip setuptools
