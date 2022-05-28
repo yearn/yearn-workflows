@@ -25,5 +25,7 @@ RUN pip install -v -r requirements.txt
 COPY download_compilers.py /download_compilers.py
 RUN python download_compilers.py
 
+RUN wget -O $HOME/deployments.db https://robowoofystorage.blob.core.windows.net/deploymentsdb/deployments.db 
+
 COPY entrypoint.sh /home/pn/entrypoint.sh
 ENTRYPOINT [ "/home/pn/entrypoint.sh" ]
