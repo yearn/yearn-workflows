@@ -1,13 +1,13 @@
 #!/bin/bash
+su pn
+
 export PATH=/home/pn/.local/bin:${PATH}
 export PATH=/github/home/.local/bin:${PATH}
 
-echo "chown workspace"
-time sudo chown -R 1000:1000 /github/workspace
-echo "chown home"
-time sudo chown -R 1000:1000 /github/home
-echo "chown file_commands"
-time sudo chown -R 1000:1000 /github/file_commands
+
+sudo chown -R 1000:1000 /github/workspace
+sudo chown -R 1000:1000 /github/home
+sudo chown -R 1000:1000 /github/file_commands
 
 export VVM_BINARY_PATH=/home/pn/.vvm
 export SOLCX_BINARY_PATH=/home/pn/.solcx
@@ -16,9 +16,7 @@ VIRTUAL_ENV=/home/pn/.local/pipx/venvs
 python3 -m venv $VIRTUAL_ENV
 PATH="$VIRTUAL_ENV/bin:$PATH"
 
-mkdir ~/.brownie
 cp network-config.yaml ~/.brownie/network-config.yaml
-cp /home/pn/deployments.db ~/.brownie/deployments.db
 
 python3 -c "import site;print([p for p in site.getsitepackages() if p.endswith(('site-packages', 'dist-packages')) ][0])"
 python3 -c "import sys; print(sys.prefix)"
@@ -35,8 +33,10 @@ echo "::endgroup::"
 
 echo "::set-output name=nonce::$NONCE"
 echo "::set-output name=safe_link::$SAFE_LINK"
-echo $GITHUB_ACTION_SEND
-echo $EXIT_CODE
+echo "github action send is $GITHUB_ACTION_SEND"
+echo "nonce is $NONCE"
+echo "safe link is $SAFE_LINK"
+echo "exit code is $EXIT_CODE"
 
 if [[ "$GITHUB_ACTION_SEND" == "true" && "$NONCE" == "" ]]
 then
