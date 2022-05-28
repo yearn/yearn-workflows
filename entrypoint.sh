@@ -26,7 +26,7 @@ PATH="$VIRTUAL_ENV/bin:$PATH"
 
 mkdir ~/.brownie
 cp network-config.yaml ~/.brownie/network-config.yaml
-cp ~/deployments.db ~/.brownie/deployments.db
+cp /home/pn/deployments.db ~/.brownie/deployments.db
 
 python3 -c "import site;print([p for p in site.getsitepackages() if p.endswith(('site-packages', 'dist-packages')) ][0])"
 python3 -c "import sys; print(sys.prefix)"
