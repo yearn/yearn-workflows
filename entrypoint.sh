@@ -1,6 +1,5 @@
 #!/bin/bash
-sudo su pn
-
+echo $HOME
 export PATH=/home/pn/.local/bin:${PATH}
 export PATH=/github/home/.local/bin:${PATH}
 
@@ -17,24 +16,21 @@ PATH="$VIRTUAL_ENV/bin:$PATH"
 
 mkdir ~/.brownie
 cp network-config.yaml ~/.brownie/network-config.yaml
-if [[ ! -e ~/.brownie/deployments.db ]];
-then
-    time ln -s /home/pn/.brownie/deployments.db ~/.brownie/deployments.db
+if [[ -f "$HOME/.brownie/deployments.db" ]]; then
+    echo "Brownie db already exists"
+    du ~/.brownie/deployments.db
+else
+    echo "Linking brownie db"
+    ln -s /home/pn/deployments.db ~/.brownie/deployments.db
+    du ~/.brownie/deployments.db
+    du /home/pn/deployments.db
 fi
 
-ln -s /home/pn/deployments.db ~/.brownie/deployments.db
-python3 -c "import site;print([p for p in site.getsitepackages() if p.endswith(('site-packages', 'dist-packages')) ][0])"
-python3 -c "import sys; print(sys.prefix)"
-python3 -m multisig_ci brownie run $1 $2 --network $3-main-fork 1>output.txt 2>error.txt || EXIT_CODE=$?
+#sudo chown -R 1000:1000 ~/.brownie/deployments.db
+
+python3 -m multisig_ci brownie run $1 $2 --network $3-main-fork
+EXIT_CODE=$?
 echo "::set-output name=brownie-exit-code::$EXIT_CODE"
-
-echo "::group:: Output"
-cat output.txt
-echo "::endgroup::"
-
-echo "::group:: Error"
-cat error.txt
-echo "::endgroup::"
 
 echo "::set-output name=nonce::$NONCE"
 echo "::set-output name=safe_link::$SAFE_LINK"
