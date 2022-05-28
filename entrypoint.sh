@@ -12,14 +12,6 @@ time sudo chown -R 1000:1000 /github/file_commands
 export VVM_BINARY_PATH=/home/pn/.vvm
 export SOLCX_BINARY_PATH=/home/pn/.solcx
 
-echo "chmod vvm"
-time sudo chmod -R 777 /home/pn/.vvm
-echo "chmod solcx"
-time sudo chmod -R 777 /home/pn/.solcx
-
-echo "ln cache"
-time ln -s /home/pn/.cache /github/home/
-
 VIRTUAL_ENV=/home/pn/.local/pipx/venvs
 python3 -m venv $VIRTUAL_ENV
 PATH="$VIRTUAL_ENV/bin:$PATH"
