@@ -33,8 +33,8 @@ EXIT_CODE=$?
 echo "::set-output name=brownie-exit-code::$EXIT_CODE"
 cat $HOME/nonce.txt
 cat $HOME/safe.txt
-NONCE=(cat $HOME/nonce.txt)
-SAFE_LINK=(cat $HOME/safe.txt)
+NONCE=$(cat $HOME/nonce.txt)
+SAFE_LINK=$(cat $HOME/safe.txt)
 
 echo "::set-output name=nonce::$NONCE"
 echo "::set-output name=safe_link::$SAFE_LINK"
