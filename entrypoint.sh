@@ -26,8 +26,6 @@ else
     du /home/pn/deployments.db
 fi
 
-#sudo chown -R 1000:1000 ~/.brownie/deployments.db
-
 python3 -m multisig_ci brownie run $1 $2 --network $3-main-fork
 EXIT_CODE=$?
 echo "::set-output name=brownie-exit-code::$EXIT_CODE"
