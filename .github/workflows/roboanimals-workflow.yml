@@ -244,12 +244,6 @@ jobs:
         network: ${{inputs.network}}
         fn: ${{inputs.fn}}
 
-    - name: Set timeout
-      if: failure()
-      id: timeout
-      run: |
-        echo "::set-output name=brownie-timeout::true"
-
     - name: Nonce fail check, add comment
       if: inputs.send == 'true' && steps.fn.outputs.nonce == ''
       uses: peter-evans/create-or-update-comment@v1
@@ -430,25 +424,4 @@ jobs:
       with:
         comment-id: ${{ inputs.comment-id }}
         reaction-type: hooray
-      continue-on-error: true
-
-    - name: Telegram Alert On Infra Failure
-      if: ${{ failure() && steps.failcheck.outcome == 'success' }}
-      uses: appleboy/telegram-action@master
-      with:
-        disable_web_page_preview: true 
-        to: ${{ inputs.failure_telegram_chat_id}}
-        token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: |
-          Grrrr grrrrr grrrrr ${{ steps.vars.outputs.run-url }} pipeline failed even though the brownie function succeeded!
-      continue-on-error: true
-
-    - name: Telegram Alert On Brownie Timeout
-      if: ${{ failure() && steps.timeout.outputs.brownie-timeout == 'true' }}
-      uses: appleboy/telegram-action@master
-      with:
-        to: ${{ inputs.failure_telegram_chat_id }}
-        token: ${{ secrets.TELEGRAM_TOKEN }}
-        message: |
-          Grrrr grrrrr grrrrr ${{ steps.vars.outputs.run-url }} brownie timed out!
       continue-on-error: true
