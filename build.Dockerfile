@@ -10,7 +10,7 @@ RUN echo pn ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/pn \
 RUN chown -R 1000:1000 /home/pn/
 USER pn
 
-RUN axel -o $HOME/deployments.db https://robowoofystorage.blob.core.windows.net/deploymentsdb/deployments.db 
+#RUN axel -o $HOME/deployments.db https://robowoofystorage.blob.core.windows.net/deploymentsdb/deployments.db 
 
 RUN sudo npm install -g ganache-cli@beta
 RUN pip install --force --upgrade pip setuptools
@@ -28,8 +28,8 @@ RUN pip install -v -r requirements.txt
 COPY download_compilers.py /download_compilers.py
 RUN python download_compilers.py
 
-RUN sudo chmod -R 777 /home/pn/.vvm
-RUN sudo chmod -R 777 /home/pn/.solcx
+# RUN sudo chmod -R 777 /home/pn/.vvm
+# RUN sudo chmod -R 777 /home/pn/.solcx
 
 COPY entrypoint.sh /home/pn/entrypoint.sh
 RUN brownie && rm ~/.brownie/deployments.db
