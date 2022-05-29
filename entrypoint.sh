@@ -16,6 +16,9 @@ PATH="$VIRTUAL_ENV/bin:$PATH"
 
 mkdir ~/.brownie
 cp network-config.yaml ~/.brownie/network-config.yaml
+
+ln -s $HOME/.brownie/deployments.db /home/pn/deployments.db
+
 # if [[ -f "$HOME/.brownie/deployments.db" ]]; then
 #     echo "Brownie db already exists"
 #     du ~/.brownie/deployments.db
