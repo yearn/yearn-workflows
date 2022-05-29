@@ -216,6 +216,7 @@ jobs:
     - name: Link
       run: |
         NEW_HOME=$RUNNER_TEMP/_github_home
+        mkdir $NEW_HOME
         ln -s ~/.brownie/deployments.db $NEW_HOME/
 
     - name: Grabbed lock message
