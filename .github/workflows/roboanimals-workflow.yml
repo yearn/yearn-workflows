@@ -206,6 +206,10 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.8
+    
+    - name: pip install multisig_ci
+      run: |
+        pip install multisig_ci==0.2.0
 
     - name: Lock on send=true to avoid nonce race condition
       if: ${{ inputs.send  == 'true' }}
