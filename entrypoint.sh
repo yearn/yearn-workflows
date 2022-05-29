@@ -16,15 +16,15 @@ PATH="$VIRTUAL_ENV/bin:$PATH"
 
 mkdir ~/.brownie
 cp network-config.yaml ~/.brownie/network-config.yaml
-if [[ -f "$HOME/.brownie/deployments.db" ]]; then
-    echo "Brownie db already exists"
-    du ~/.brownie/deployments.db
-else
-    echo "Linking brownie db"
-    ln -s /home/pn/deployments.db ~/.brownie/deployments.db
-    du ~/.brownie/deployments.db
-    du /home/pn/deployments.db
-fi
+# if [[ -f "$HOME/.brownie/deployments.db" ]]; then
+#     echo "Brownie db already exists"
+#     du ~/.brownie/deployments.db
+# else
+#     echo "Linking brownie db"
+#     ln -s /home/pn/deployments.db ~/.brownie/deployments.db
+#     du ~/.brownie/deployments.db
+#     du /home/pn/deployments.db
+# fi
 
 python3 -m multisig_ci brownie run $1 $2 --network $3-main-fork
 EXIT_CODE=$?
