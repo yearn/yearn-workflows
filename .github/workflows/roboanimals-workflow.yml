@@ -212,6 +212,11 @@ jobs:
       uses: shogo82148/actions-mutex@v1
       with:
         key: send-${{ inputs.network }}
+    
+    - name: Link
+      run: |
+        NEW_HOME=$RUNNER_TEMP/_github_home
+        ln -s ~/.brownie/deployments.db $NEW_HOME/
 
     - name: Grabbed lock message
       if: ${{ inputs.from_pr == 'true' && inputs.send == 'true'  }}
