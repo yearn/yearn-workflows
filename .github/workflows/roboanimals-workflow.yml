@@ -217,7 +217,7 @@ jobs:
       run: |
         NEW_HOME=$RUNNER_TEMP/_github_home
         mkdir $NEW_HOME
-        ln -s ~/.brownie/deployments.db $NEW_HOME/
+        ln -s ~/.brownie/deployments.db $NEW_HOME/.brownie/
 
     - name: Grabbed lock message
       if: ${{ inputs.from_pr == 'true' && inputs.send == 'true'  }}
