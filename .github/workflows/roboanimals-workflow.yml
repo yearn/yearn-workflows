@@ -382,14 +382,7 @@ jobs:
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > Failure: check output ${{ steps.vars.outputs.run-url }}
-
-    - name: Comment with output and error
-      if: ${{ failure() && inputs.from_pr == 'true' }}
-      uses: peter-evans/create-or-update-comment@v1
-      with:
-        issue-number: ${{ inputs.pull_request_number }}
-        body: |
+          > Failure: check [output](${{ steps.vars.outputs.run-url }})
           Output:
           ```
           ${{ steps.read_output.outputs.content }} 
@@ -463,9 +456,9 @@ jobs:
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > TX with nonce ${{ env.NONCE }} successfully sent: ${{ steps.vars.outputs.run-url }}. 
-          > Find your queued TX at ${{ env.SAFE_LINK }}
-          > Your PR has been labeled with tag ${{inputs.network}} ${{ env.NONCE }}, which you can find here: https://github.com/yearn/strategist-ms/labels?q=${{ env.NONCE }}
+          > TX with nonce ${{ env.NONCE }} successfully sent. Find output logs [here](${{ steps.vars.outputs.run-url }}). 
+          > Find your queued TX on the [Gnosis UI](${{ env.SAFE_LINK }})
+          > Your PR has been labeled with tag ${{inputs.network}} ${{ env.NONCE }}, which you can find [here](https://github.com/yearn/strategist-ms/labels?q=${{ env.NONCE }}).
       continue-on-error: true
 
     - uses: actions-ecosystem/action-add-labels@v1
