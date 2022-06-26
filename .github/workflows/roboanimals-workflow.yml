@@ -392,10 +392,10 @@ jobs:
         issue-number: ${{ inputs.pull_request_number }}
         body: |
           Output: 
-          ${{ steps.read_output.outputs.content }} 
+          > ${{ steps.read_output.outputs.content }} 
           
           Error: 
-          ${{ steps.read_error.outputs.content }}
+          > ${{ steps.read_error.outputs.content }}
 
     - name: Edit comment with dry run message
       if: ${{ inputs.send  == 'false' && inputs.from_pr == 'true'}}
