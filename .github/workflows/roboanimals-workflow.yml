@@ -209,7 +209,7 @@ jobs:
     
     - name: pip install multisig_ci
       run: |
-        pip install multisig_ci==0.2.0
+        pip install multisig_ci==0.3.11
 
     - name: Lock on send=true to avoid nonce race condition
       if: ${{ inputs.send  == 'true' }}
