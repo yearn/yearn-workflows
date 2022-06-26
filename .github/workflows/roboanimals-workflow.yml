@@ -228,6 +228,14 @@ jobs:
         pip install wheel
         pip install -r requirements-dev.txt
 
+    - name: Grab lock message
+      if: inputs.send == 'true'
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        comment-id: ${{ inputs.comment-id }}
+        body: |
+          > Grabbing lock for ${{ inputs.network }}.... Taking too long? [Read this.](https://github.com/yearn/yearn-workflows/tree/master#stuck-on-grabbing-lock)
+
     - name: Lock on send=true to avoid nonce race condition
       if: ${{ inputs.send  == 'true' }}
       uses: shogo82148/actions-mutex@v1
