@@ -385,7 +385,19 @@ jobs:
         body: |
           > Failure: check output ${{ steps.vars.outputs.run-url }}
           > Output: ${{ steps.read_output.outputs.content }} 
-          > Error: ${{ steps.read_error.outputs.content }} 
+          > Error: ${{ steps.read_error.outputs.content }}
+
+    - name: Comment with output and error
+      if: ${{ failure() && inputs.from_pr == 'true' }}
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        issue-number: ${{ inputs.pull_request_number }}
+        body: |
+          Output: 
+          ${{ steps.read_output.outputs.content }} 
+          
+          Error: 
+          ${{ steps.read_error.outputs.content }}
 
     - name: Edit comment with dry run message
       if: ${{ inputs.send  == 'false' && inputs.from_pr == 'true'}}
