@@ -2,7 +2,7 @@
 Github actions workflows
 
 ## Stuck on grabbing lock
-The multisig workflow grabs a "lock" to avoid 2 runs from writing a TX for the same nonce.
+The multisig workflow grabs a "lock" to prvent 2 runs from writing the same nonce.
 
 If you find your run stuck at the lock grabbing step, then follow these steps:
 
