@@ -363,14 +363,14 @@ jobs:
         exit 1
 
     - name: Read error.txt
-      if: failure() && inputs.from_pr == 'true'
+      if: inputs.from_pr == 'true'
       id: read_error
       uses: juliangruber/read-file-action@v1
       with:
         path: ./error.txt
 
     - name: Read output.txt
-      if: failure() && inputs.from_pr == 'true'
+      if: inputs.from_pr == 'true'
       id: read_output
       uses: juliangruber/read-file-action@v1
       with:
@@ -390,7 +390,7 @@ jobs:
           
           Error: 
           ```
-          > ${{ steps.read_error.outputs.content }}
+          ${{ steps.read_error.outputs.content }}
           ```
 
     - name: Edit comment with dry run message
@@ -399,8 +399,13 @@ jobs:
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > Dry run success: ${{ steps.vars.outputs.run-url }}
+          > Dry run success, see output [here](${{ steps.vars.outputs.run-url }})
           > Rerun the command with send=true to publish the TX to the safe
+          
+          Output:
+          ```
+          ${{ steps.read_output.outputs.content }}
+          ```
       continue-on-error: true
 
     - name: Set PR url
