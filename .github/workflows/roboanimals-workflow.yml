@@ -242,6 +242,14 @@ jobs:
       with:
         key: send-${{ inputs.network }}
 
+    - name: Grabbed lock message
+      if: inputs.send == 'true'
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        comment-id: ${{ inputs.comment-id }}
+        body: |
+          > Successfully grabbed lock for ${{ inputs.network }}
+
     - name: cache brownie database
       if: ${{ inputs.cached_runner != 'true' }}
       id: cache-brownie
