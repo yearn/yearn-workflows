@@ -180,6 +180,14 @@ jobs:
       id: vars
       run: echo ::set-output name=run-url::https://github.com/${{github.repository}}/actions/runs/$GITHUB_RUN_ID
 
+    - name: Edit comment with link to run
+      if: ${{ inputs.from_pr == 'true' }}
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        comment-id: ${{ inputs.comment-id }}
+        body: |
+          > Run in progress 🚀, follow progress here: ${{ steps.vars.outputs.run-url }}
+
     - name: Cache compiler installations
       if: ${{ inputs.cached_runner != 'true' }}
       uses: actions/cache@v2
@@ -306,7 +314,7 @@ jobs:
         exit ${{ steps.fn.outputs.brownie-exit-code}}
 
     - name: Nonce fail check, add comment
-      if: inputs.send == 'true' && env.NONCE == ''
+      if: always() && inputs.send == 'true' && env.NONCE == ''
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
@@ -316,13 +324,13 @@ jobs:
     - name: New TX Telegram Alert - MultiSig Chat
       env:
         TELEGRAM_MESSAGE: "Oof, ${{ steps.get-pr-author.outputs.result }} just tried to send a transaction without putting the @sign decorator above the function... Please join me in shaming this 🤡"
-      if: inputs.send == 'true' && env.NONCE == ''
+      if: always() && inputs.send == 'true' && env.NONCE == ''
       run: |
         python3 -m multisig_ci send_and_pin_message ${{ secrets.TELEGRAM_TOKEN }} ${{ inputs.group_telegram_chat_id }}
       continue-on-error: true
 
     - name: Nonce fail check
-      if: inputs.send == 'true' && env.NONCE == ''
+      if: always() && inputs.send == 'true' && env.NONCE == ''
       run: |
         exit 1
 
@@ -332,10 +340,10 @@ jobs:
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > Did not find safe.txt.
+          > Fatal error. Did not find safe.txt.
 
     - name: Safe fail check, add comment
-      if: inputs.send == 'true' && env.SAFE_LINK == ''
+      if: always() && inputs.send == 'true' && env.SAFE_LINK == ''
       run: |
         exit 1
         
