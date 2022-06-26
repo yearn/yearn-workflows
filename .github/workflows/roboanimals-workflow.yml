@@ -346,7 +346,21 @@ jobs:
       if: always() && inputs.send == 'true' && env.SAFE_LINK == ''
       run: |
         exit 1
-        
+
+    - name: Read error.txt
+      if: failure() && inputs.from_pr == 'true'
+      id: read_error
+      uses: juliangruber/read-file-action@v1
+      with:
+        path: ./error.txt
+
+    - name: Read output.txt
+      if: failure() && inputs.from_pr == 'true'
+      id: read_output
+      uses: juliangruber/read-file-action@v1
+      with:
+        path: ./output.txt
+      
     - name: Edit comment with error message
       if: ${{ failure() && inputs.from_pr == 'true' }}
       uses: peter-evans/create-or-update-comment@v1
@@ -354,6 +368,8 @@ jobs:
         comment-id: ${{ inputs.comment-id }}
         body: |
           > Failure: check output ${{ steps.vars.outputs.run-url }}
+          > Output: ${{ steps.read_output.outputs.content }} 
+          > Error: ${{ steps.read_error.outputs.content }} 
 
     - name: Edit comment with dry run message
       if: ${{ inputs.send  == 'false' && inputs.from_pr == 'true'}}
