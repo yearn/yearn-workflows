@@ -330,7 +330,7 @@ jobs:
         exit ${{ steps.fn.outputs.brownie-exit-code}}
 
     - name: Nonce fail check, add comment
-      if: always() && inputs.send == 'true' && env.NONCE == ''
+      if: inputs.send == 'true' && env.NONCE == ''
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
@@ -340,13 +340,13 @@ jobs:
     - name: New TX Telegram Alert - MultiSig Chat
       env:
         TELEGRAM_MESSAGE: "Oof, ${{ steps.get-pr-author.outputs.result }} just tried to send a transaction without putting the @sign decorator above the function... Please join me in shaming this 🤡"
-      if: always() && inputs.send == 'true' && env.NONCE == ''
+      if: inputs.send == 'true' && env.NONCE == ''
       run: |
         python3 -m multisig_ci send_and_pin_message ${{ secrets.TELEGRAM_TOKEN }} ${{ inputs.group_telegram_chat_id }}
       continue-on-error: true
 
     - name: Nonce fail check
-      if: always() && inputs.send == 'true' && env.NONCE == ''
+      if: inputs.send == 'true' && env.NONCE == ''
       run: |
         exit 1
 
@@ -359,7 +359,7 @@ jobs:
           > Fatal error. Did not find safe.txt.
 
     - name: Safe fail check, add comment
-      if: always() && inputs.send == 'true' && env.SAFE_LINK == ''
+      if: inputs.send == 'true' && env.SAFE_LINK == ''
       run: |
         exit 1
 
