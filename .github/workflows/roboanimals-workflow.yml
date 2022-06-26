@@ -186,7 +186,7 @@ jobs:
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > Run in progress 🚀, follow progress here: ${{ steps.vars.outputs.run-url }}
+          > Run in progress 🚀, follow here: ${{ steps.vars.outputs.run-url }}
 
     - name: Cache compiler installations
       if: ${{ inputs.cached_runner != 'true' }}
