@@ -104,6 +104,17 @@ jobs:
     timeout-minutes: 60
     steps:
     - uses: hmarr/debug-action@v2
+    - name: Create URL to the run output
+      id: vars
+      run: echo ::set-output name=run-url::https://github.com/${{github.repository}}/actions/runs/$GITHUB_RUN_ID
+
+    - name: Edit comment with link to run
+      if: ${{ inputs.from_pr == 'true' }}
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        comment-id: ${{ inputs.comment-id }}
+        body: |
+          > Run in progress 🚀, follow [here](${{ steps.vars.outputs.run-url }})
 
     - name: Checking out code
       uses: actions/checkout@v1
@@ -175,18 +186,6 @@ jobs:
         comment-id: ${{ inputs.comment-id }}
         body: |
           > Review requirement failed. Get at least one approval before sending.
-
-    - name: Create URL to the run output
-      id: vars
-      run: echo ::set-output name=run-url::https://github.com/${{github.repository}}/actions/runs/$GITHUB_RUN_ID
-
-    - name: Edit comment with link to run
-      if: ${{ inputs.from_pr == 'true' }}
-      uses: peter-evans/create-or-update-comment@v1
-      with:
-        comment-id: ${{ inputs.comment-id }}
-        body: |
-          > Run in progress 🚀, follow here: ${{ steps.vars.outputs.run-url }}
 
     - name: Cache compiler installations
       if: ${{ inputs.cached_runner != 'true' }}
@@ -391,11 +390,15 @@ jobs:
       with:
         issue-number: ${{ inputs.pull_request_number }}
         body: |
-          Output: 
-          > ${{ steps.read_output.outputs.content }} 
+          Output:
+          ```
+          ${{ steps.read_output.outputs.content }} 
+          ```
           
           Error: 
+          ```
           > ${{ steps.read_error.outputs.content }}
+          ```
 
     - name: Edit comment with dry run message
       if: ${{ inputs.send  == 'false' && inputs.from_pr == 'true'}}
