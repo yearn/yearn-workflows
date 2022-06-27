@@ -114,7 +114,8 @@ jobs:
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > Run in progress 🚀, follow [here](${{ steps.vars.outputs.run-url }})
+          > 🚀 Agent ${{ env.RUNNER_NAME }} has picked up this request, follow progress [here](${{ steps.vars.outputs.run-url }})
+          >
 
     - name: Checking out code
       uses: actions/checkout@v1
@@ -233,7 +234,7 @@ jobs:
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > Grabbing lock for ${{ inputs.network }}.... Taking too long? [Read this.](https://github.com/yearn/yearn-workflows/tree/master#stuck-on-grabbing-lock)
+          > 🔓 Grabbing lock for ${{ inputs.network }}.... Taking too long? [Read this.](https://github.com/yearn/yearn-workflows/tree/master#stuck-on-grabbing-lock)
 
     - name: Lock on send=true to avoid nonce race condition
       if: ${{ inputs.send  == 'true' }}
@@ -247,7 +248,8 @@ jobs:
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > Successfully grabbed lock for ${{ inputs.network }}
+          > 🔐 Successfully grabbed lock for ${{ inputs.network }}
+          >
 
     - name: cache brownie database
       if: ${{ inputs.cached_runner != 'true' }}
@@ -382,7 +384,8 @@ jobs:
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > Failure: check [output](${{ steps.vars.outputs.run-url }})
+          > ❌ Failure, check failure [logs](${{ steps.vars.outputs.run-url }}) below
+
           Output:
           ```
           ${{ steps.read_output.outputs.content }} 
@@ -399,7 +402,7 @@ jobs:
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > Dry run success, see output [here](${{ steps.vars.outputs.run-url }})
+          > ✅ Dry run success, see output [here](${{ steps.vars.outputs.run-url }})
           > Rerun the command with send=true to publish the TX to the safe
           
           Output:
@@ -461,9 +464,15 @@ jobs:
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > TX with nonce ${{ env.NONCE }} successfully sent. Find output logs [here](${{ steps.vars.outputs.run-url }}). 
+          > ✅ TX with nonce ${{ env.NONCE }} successfully sent. Find output logs [here](${{ steps.vars.outputs.run-url }}). 
           > Find your queued TX on the [Gnosis UI](${{ env.SAFE_LINK }})
+          >
           > Your PR has been labeled with tag ${{inputs.network}} ${{ env.NONCE }}, which you can find [here](https://github.com/yearn/strategist-ms/labels?q=${{ env.NONCE }}).
+          
+          Output:
+          ```
+          ${{ steps.read_output.outputs.content }}         
+          ```
       continue-on-error: true
 
     - uses: actions-ecosystem/action-add-labels@v1
