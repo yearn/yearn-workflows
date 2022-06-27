@@ -188,15 +188,6 @@ jobs:
         body: |
           > Review requirement failed. Get at least one approval before sending.
 
-    - name: Cache compiler installations
-      if: ${{ inputs.cached_runner != 'true' }}
-      uses: actions/cache@v2
-      with:
-        path: |
-          ~/.solcx
-          ~/.vvm
-        key: ${{ runner.os }}-compiler-cache-${{ inputs.compiler_cache_version }}
-
     - name: Setup node.js
       uses: actions/setup-node@v1
       with:
@@ -209,18 +200,6 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: 3.8
-
-    - name: Restore pip cache
-      if: ${{ inputs.cached_runner != 'true' }}
-      uses: actions/cache@v2
-      id: pip-cache
-      with:
-        path: |
-          ~/.cache/pip/
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-${{ hashFiles('**/requirements-dev.txt') }}
-          ${{ runner.os }}-pip-
 
     - name: Install python dependencies
       run: |
@@ -250,25 +229,6 @@ jobs:
         body: |
           > 🔐 Successfully grabbed lock for ${{ inputs.network }}
           >
-
-    - name: cache brownie database
-      if: ${{ inputs.cached_runner != 'true' }}
-      id: cache-brownie
-      uses: martijnhols/actions-cache/restore@v3
-      with:
-        path: |
-          ~/.brownie
-          !~/.brownie/accounts
-        key: ${{ runner.os }}-brownie-cache-${{ inputs.brownie_cache_version }}
-        restore-keys: |
-          ${{ runner.os }}-brownie-cache-${{ inputs.brownie_cache_version }}
-          ${{ runner.os }}-brownie-cache-*
-          ${{ runner.os }}-brownie-cache
-
-    - name: delete .brownie/accounts after cache download
-      if: ${{ inputs.cached_runner != 'true' }}
-      run: |
-        rm -rf ~/.brownie/accounts
     
     - name: Add network config
       timeout-minutes: 1
@@ -294,7 +254,7 @@ jobs:
         ARBISCAN_TOKEN: ${{ secrets.ARBISCAN_TOKEN }}
         SNOWTRACE_TOKEN: ${{ secrets.SNOWTRACE_TOKEN }}
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-        GITHUB_ACTION_SEND: ${{  inputs.send }}
+        GITHUB_ACTION_SEND: ${{ inputs.send }}
         BE: ${{ inputs.be }}
       run: |
         python3 -m multisig_ci brownie run ${{ inputs.file }} ${{ inputs.fn }} --network ${{ inputs.network }}-main-fork 1>output.txt 2>error.txt || EXIT_CODE=$?
@@ -540,10 +500,3 @@ jobs:
         rm -rf ~/.brownie/accounts
         rm -f ~/alive.signal
       continue-on-error: true
-
-    - name: Save ".brownie" to cache
-      if: ${{ inputs.cached_runner != 'true' }}
-      uses: martijnhols/actions-cache/save@v3
-      with:
-        path: node_modules
-        key: ${{ steps.cache-brownie.outputs.primary-key }}
