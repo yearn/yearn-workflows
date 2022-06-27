@@ -108,13 +108,17 @@ jobs:
       id: vars
       run: echo ::set-output name=run-url::https://github.com/${{github.repository}}/actions/runs/$GITHUB_RUN_ID
 
+    - name: Save runner name
+      id: runner_name
+      run: echo ::set-output name=runner_name::$RUNNER_NAME
+      
     - name: Edit comment with link to run
       if: ${{ inputs.from_pr == 'true' }}
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > 🚀 Agent $RUNNER_NAME has picked up this request, follow progress [here](${{ steps.vars.outputs.run-url }})
+          > 🚀 Agent ${{steps.runner_name.outputs.runner_name }} has picked up this request, follow progress [here](${{ steps.vars.outputs.run-url }})
           >
 
     - name: Checking out code
