@@ -327,8 +327,8 @@ jobs:
     - name: Fix ansi codes
       if: always() && inputs.from_pr == 'true'
       run: |
-        cat ./error.txt | sed -e 's/\x1b\[[0-9;]*m//g' > ./error.txt
-        cat ./output.txt | sed -e 's/\x1b\[[0-9;]*m//g' > ./output.txt
+        sed -i 's/\x1b\[[0-9;]*m//g' ./error.txt
+        sed -i 's/\x1b\[[0-9;]*m//g' ./output.txt
 
     - name: Read error.txt
       if: always() && inputs.from_pr == 'true'
