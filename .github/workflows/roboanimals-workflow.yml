@@ -114,7 +114,7 @@ jobs:
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > 🚀 Agent ${{ env.RUNNER_NAME }} has picked up this request, follow progress [here](${{ steps.vars.outputs.run-url }})
+          > 🚀 Agent $RUNNER_NAME has picked up this request, follow progress [here](${{ steps.vars.outputs.run-url }})
           >
 
     - name: Checking out code
