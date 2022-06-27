@@ -324,6 +324,12 @@ jobs:
       run: |
         exit 1
 
+    - name: Fix ansi codes
+      if: always() && inputs.from_pr == 'true'
+      run: |
+        cat ./error.txt | sed -e 's/\x1b\[[0-9;]*m//g' > ./error.txt
+        cat ./output.txt | sed -e 's/\x1b\[[0-9;]*m//g' > ./output.txt
+
     - name: Read error.txt
       if: always() && inputs.from_pr == 'true'
       id: read_error
@@ -337,12 +343,6 @@ jobs:
       uses: juliangruber/read-file-action@v1
       with:
         path: ./output.txt
-  
-    - name: Fix ansi codes
-      if: always() && inputs.from_pr == 'true'
-      run: |
-        cat ./error.txt | sed -e 's/\x1b\[[0-9;]*m//g' > ./error.txt
-        cat ./output.txt | sed -e 's/\x1b\[[0-9;]*m//g' > ./output.txt
       
     - name: Edit comment with error message
       if: ${{ failure() && inputs.from_pr == 'true' }}
