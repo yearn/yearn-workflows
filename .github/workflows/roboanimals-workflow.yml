@@ -212,7 +212,7 @@ jobs:
         pip install -r requirements-dev.txt -f https://pypi.org/project/multisig-ci
 
     - name: Grab lock message
-      if: inputs.send == 'true'
+      if: ${{ inputs.from_pr == 'true' && inputs.send == 'true'  }}
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
@@ -226,7 +226,7 @@ jobs:
         key: send-${{ inputs.network }}
 
     - name: Grabbed lock message
-      if: inputs.send == 'true'
+      if: ${{ inputs.from_pr == 'true' && inputs.send == 'true'  }}
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
