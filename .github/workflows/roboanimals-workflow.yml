@@ -212,7 +212,7 @@ jobs:
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         GITHUB_ACTION_SEND: ${{  inputs.send }}
         BE: ${{ inputs.be }}
-      uses: yearn/yearn-workflows@use-docker
+      uses: yearn/yearn-workflows@use-weiroll
       with:
         file: ${{inputs.file}} 
         network: ${{inputs.network}}
