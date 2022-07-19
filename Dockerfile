@@ -1,2 +1,2 @@
-FROM robowoofyregistry.azurecr.io/robowoofy:v0.0.14
+FROM robowoofyregistry.azurecr.io/robowoofy:weiroll
 ENTRYPOINT [ "/home/pn/entrypoint.sh" ]
