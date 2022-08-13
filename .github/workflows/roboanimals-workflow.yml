@@ -198,10 +198,6 @@ jobs:
         body: |
           > Review requirement failed. Get at least one approval before sending.
 
-    - name: Create URL to the run output
-      id: vars
-      run: echo ::set-output name=run-url::https://github.com/${{github.repository}}/actions/runs/$GITHUB_RUN_ID
-
     - name: Set up python 3.8
       uses: actions/setup-python@v2
       with:
