@@ -37,9 +37,6 @@ echo "::group:: Error"
 cat error.txt
 echo "::endgroup::"
 
-pwd output.txt
-pwd error.txt
-pwd
 
 NONCE=$(cat $HOME/nonce.txt)
 SAFE_LINK=$(cat $HOME/safe.txt)
