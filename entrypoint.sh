@@ -31,10 +31,10 @@ pip3 install -r requirements-dev.txt
 python3 -m multisig_ci brownie run $1 $2 --network $3-main-fork 1>output.txt 2>error.txt || EXIT_CODE=$?
 echo "::set-output name=brownie-exit-code::$EXIT_CODE"
 echo "::group:: Output"
-cat $HOME/output.txt
+cat output.txt
 echo "::endgroup::"
 echo "::group:: Error"
-cat $HOME/error.txt
+cat error.txt
 echo "::endgroup::"
 
 NONCE=$(cat $HOME/nonce.txt)
