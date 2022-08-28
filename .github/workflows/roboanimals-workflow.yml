@@ -238,7 +238,7 @@ jobs:
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         GITHUB_ACTION_SEND: ${{ inputs.send }}
         BE: ${{ inputs.be }}
-      uses: yearn/yearn-workflows@use-docker
+      uses: yearn/yearn-workflows@use-docker-rebase
       with:
         file: ${{inputs.file}} 
         network: ${{inputs.network}}
@@ -283,6 +283,7 @@ jobs:
       run: |
         sed -i 's/\x1b\[[0-9;]*m//g' ./error.txt
         sed -i 's/\x1b\[[0-9;]*m//g' ./output.txt
+
     - name: Read error.txt
       if: always() && inputs.from_pr == 'true'
       id: read_error

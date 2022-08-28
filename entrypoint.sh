@@ -27,9 +27,14 @@ else
     du /home/pn/deployments.db
 fi
 
-python3 -m multisig_ci brownie run $1 $2 --network $3-main-fork
-EXIT_CODE=$?
+python3 -m multisig_ci brownie run $1 $2 --network $3-main-fork 1>output.txt 2>error.txt || EXIT_CODE=$?
 echo "::set-output name=brownie-exit-code::$EXIT_CODE"
+echo "::group:: Output"
+cat $HOME/output.txt
+echo "::endgroup::"
+echo "::group:: Error"
+cat $HOME/error.txt
+echo "::endgroup::"
 
 NONCE=$(cat $HOME/nonce.txt)
 SAFE_LINK=$(cat $HOME/safe.txt)
