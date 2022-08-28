@@ -30,10 +30,6 @@ RUN python download_compilers.py
 
 COPY entrypoint.sh /home/pn/entrypoint.sh
 RUN brownie && rm ~/.brownie/deployments.db
-RUN ganache-cli &
-RUN sleep 10
-RUN kill -9 $(pgrep -f node)
-
 RUN rm -rf ~/.local/lib
 RUN rm -rf ~/.cache
 

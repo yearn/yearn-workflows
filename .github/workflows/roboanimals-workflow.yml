@@ -198,10 +198,6 @@ jobs:
         body: |
           > Review requirement failed. Get at least one approval before sending.
 
-    - name: Create URL to the run output
-      id: vars
-      run: echo ::set-output name=run-url::https://github.com/${{github.repository}}/actions/runs/$GITHUB_RUN_ID
-
     - name: Set up python 3.8
       uses: actions/setup-python@v2
       with:
@@ -285,21 +281,22 @@ jobs:
     - name: Fix ansi codes
       if: always() && inputs.from_pr == 'true'
       run: |
-        sed -i 's/\x1b\[[0-9;]*m//g' ./error.txt
-        sed -i 's/\x1b\[[0-9;]*m//g' ./output.txt
+        sed -i 's/\x1b\[[0-9;]*m//g' ${{env.GITHUB_WORKSPACE}}error.txt
+        sed -i 's/\x1b\[[0-9;]*m//g' ${{env.GITHUB_WORKSPACE}}output.txt
+
     - name: Read error.txt
       if: always() && inputs.from_pr == 'true'
       id: read_error
       uses: juliangruber/read-file-action@v1
       with:
-        path: ./error.txt
+        path: ${{env.GITHUB_WORKSPACE}}error.txt
 
     - name: Read output.txt
       if: always() && inputs.from_pr == 'true'
       id: read_output
       uses: juliangruber/read-file-action@v1
       with:
-        path: ./output.txt
+        path: ${{env.GITHUB_WORKSPACE}}output.txt
 
     - name: Edit comment with error message
       if: ${{ failure() && inputs.from_pr == 'true' }}
