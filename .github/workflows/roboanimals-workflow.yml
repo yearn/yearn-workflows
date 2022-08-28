@@ -281,22 +281,22 @@ jobs:
     - name: Fix ansi codes
       if: always() && inputs.from_pr == 'true'
       run: |
-        sed -i 's/\x1b\[[0-9;]*m//g' ./error.txt
-        sed -i 's/\x1b\[[0-9;]*m//g' ./output.txt
+        sed -i 's/\x1b\[[0-9;]*m//g' /github/workspace/error.txt
+        sed -i 's/\x1b\[[0-9;]*m//g' /github/workspace/output.txt
 
     - name: Read error.txt
       if: always() && inputs.from_pr == 'true'
       id: read_error
       uses: juliangruber/read-file-action@v1
       with:
-        path: ./error.txt
+        path: /github/workspace/error.txt
 
     - name: Read output.txt
       if: always() && inputs.from_pr == 'true'
       id: read_output
       uses: juliangruber/read-file-action@v1
       with:
-        path: ./output.txt
+        path: /github/workspace/output.txt
 
     - name: Edit comment with error message
       if: ${{ failure() && inputs.from_pr == 'true' }}
