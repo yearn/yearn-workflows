@@ -212,7 +212,7 @@ jobs:
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         GITHUB_ACTION_SEND: ${{  inputs.send }}
         BE: ${{ inputs.be }}
-      uses: yearn/yearn-workflows@use-weiroll
+      uses: yearn/yearn-workflows@use-weiroll-712d7e4c75e299acf905b3135f127e90b0f17dc6
       with:
         file: ${{inputs.file}} 
         network: ${{inputs.network}}
