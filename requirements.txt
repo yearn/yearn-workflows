@@ -1,5 +1,5 @@
 black==21.9b0
-weiroll-py==0.1.0
+weiroll-py==0.2.0
 click==8.0.3
 regex==2021.10.8
 tomli==1.2.1
