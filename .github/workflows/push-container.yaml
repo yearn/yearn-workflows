@@ -22,4 +22,4 @@ jobs:
             password: ${{ secrets.REGISTRY_PASSWORD }}
         - run: |
             docker build -f Dockerfile . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/ape-safe-template:${{ github.sha }} --network=host
-            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/ape-safe-template:${{ github.sha }}
+            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/ape-safe-template:v1
