@@ -28,4 +28,4 @@ RUN pip install --no-cache-dir -r requirements.txt && \
  npm cache clean --force && \
  sudo apt-get clean && sudo rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT [ "/home/pn/entrypoint.sh" ]
+ENTRYPOINT [ "/home/pn/activate.sh" ]
