@@ -9,8 +9,7 @@ RUN apt-get update \
 USER pn
 
 COPY requirements.txt /requirements.txt
-COPY download_compilers.py /download_compilers.py
-COPY entrypoint.sh /home/pn/entrypoint.sh
+COPY activate.sh /home/pn/activate.sh
 
 ENV VIRTUAL_ENV=/home/pn/.local/pipx/venvs
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
@@ -22,7 +21,7 @@ python -m pipx ensurepath --force && \
 /home/pn/.local/bin/pipx install eth-brownie==1.17 && \
 python3 -m venv $VIRTUAL_ENV
 
-RUN pip install --no-cache-dir -r requirements.txt && python download_compilers.py && \
+RUN pip install --no-cache-dir -r requirements.txt && \
  brownie && rm ~/.brownie/deployments.db && \
  rm -rf ~/.local/lib && \
  rm -rf ~/.cache && \
