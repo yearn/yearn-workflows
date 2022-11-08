@@ -103,6 +103,26 @@ jobs:
     runs-on: ${{ inputs.runs_on }}
     timeout-minutes: 60
     steps:
+    - uses: hmarr/debug-action@v2
+    - name: Create URL to the run output
+      id: vars
+      run: echo ::set-output name=run-url::https://github.com/${{github.repository}}/actions/runs/$GITHUB_RUN_ID
+
+    - name: Save runner name
+      id: runner_name
+      run: echo ::set-output name=runner_name::$RUNNER_NAME
+      
+    - name: Edit comment with link to run
+      if: ${{ inputs.from_pr == 'true' }}
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        comment-id: ${{ inputs.comment-id }}
+        body: |
+          > 🚀 Agent ${{steps.runner_name.outputs.runner_name }} has picked up this request, follow progress [here](${{ steps.vars.outputs.run-url }})
+          >
+    - name: install git
+      run: sudo apt install git
+
     - name: Checking out code
       uses: actions/checkout@v3.0.2
       with:
@@ -111,7 +131,6 @@ jobs:
     - name: Checkout submodules
       run: |
         git submodule update --init --recursive
-
     - name: Get PR title
       uses: actions/github-script@v3
       if: ${{ inputs.from_pr == 'true' }}
@@ -123,7 +142,6 @@ jobs:
             return 'Empty Title 🤡';
           }
           return pull.title.replace(/\$/g, '💲');
-
     - name: Get PR body
       uses: actions/github-script@v3
       if: ${{ inputs.from_pr == 'true' }}
@@ -135,8 +153,6 @@ jobs:
             return 'Empty Description 🤡';
           }
           return pull.body.replace(/\r\n/g, ' 🐶 ').replace(/\$/g, '💲');
-
-
     - name: Get PR author
       uses: actions/github-script@v3
       if: ${{ inputs.from_pr == 'true' }}
@@ -148,7 +164,6 @@ jobs:
             return 'Empty Author 🤡';
           }
           return pull.user.login;
-
     - name: Pull down reviews
       uses: actions/github-script@v3
       if: ${{ inputs.check_reviews == 'true' }}
@@ -159,12 +174,10 @@ jobs:
             ...context.repo,
             pull_number: ${{ inputs.pull_request_number }},
           })
-
           const approvals = reviews.filter(review => review.state == 'APPROVED')
           const reviews_filtered = approvals.filter(review => review.user.login != ${{ steps.get-pr-author.outputs.result }})
           core.info(`List of reviews:\n ${JSON.stringify(reviews_filtered)}`)
           return reviews_filtered.length
-
     - name: Check Reviews
       if: ${{ inputs.check_reviews == 'true' && inputs.send  == 'true' && steps.get-pr.outputs.result < 1}}
       run: exit 1
@@ -176,11 +189,6 @@ jobs:
         comment-id: ${{ inputs.comment-id }}
         body: |
           > Review requirement failed. Get at least one approval before sending.
-
-    - name: Create URL to the run output
-      id: vars
-      run: echo ::set-output name=run-url::https://github.com/${{github.repository}}/actions/runs/$GITHUB_RUN_ID
-
     - name: Set up python 3.8
       uses: actions/setup-python@v2
       with:
@@ -189,7 +197,14 @@ jobs:
     - name: pip install multisig_ci
       run: |
         pip install multisig_ci==0.4.3
-
+    - name: Starting running message
+      if: ${{ inputs.from_pr == 'true' && inputs.send == 'true'  }}
+      uses: peter-evans/create-or-update-comment@v1
+      with:
+        comment-id: ${{ inputs.comment-id }}
+        body: |
+          > 🏃 running ${{ inputs.fn }} using brownie 🤎 on the ${{ inputs.network }} network
+          >
     - name: Run Function
       id: fn
       timeout-minutes: 45
@@ -204,7 +219,7 @@ jobs:
         ARBISCAN_TOKEN: ${{ secrets.ARBISCAN_TOKEN }}
         SNOWTRACE_TOKEN: ${{ secrets.SNOWTRACE_TOKEN }}
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
-        GITHUB_ACTION_SEND: ${{  inputs.send }}
+        GITHUB_ACTION_SEND: ${{ inputs.send }}
         BE: ${{ inputs.be }}
       uses: yearn/yearn-workflows@use-weiroll
       with:
@@ -219,7 +234,6 @@ jobs:
         comment-id: ${{ inputs.comment-id }}
         body: |
           > Did not find nonce.txt. Did you run with send=true without actually posting the transaction at the end of your function? Use the @sign decorator above your function.
-
     - name: New TX Telegram Alert - MultiSig Chat
       env:
         TELEGRAM_MESSAGE: "Oof, ${{ steps.get-pr-author.outputs.result }} just tried to send a transaction without putting the @sign decorator above the function... Please join me in shaming this 🤡"
@@ -232,36 +246,66 @@ jobs:
       if: inputs.send == 'true' && steps.fn.outputs.nonce == ''
       run: |
         exit 1
-
     - name: Safe url check, add comment
       if: inputs.send == 'true' && steps.fn.outputs.safe_link == ''
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > Did not find safe.txt.
-
+          > Fatal error. Did not find safe.txt.
     - name: Safe fail check, add comment
       if: inputs.send == 'true' && steps.fn.outputs.safe_link == ''
       run: |
         exit 1
-  
+
+    - name: Fix ansi codes
+      if: always() && inputs.from_pr == 'true'
+      run: |
+        sed -i 's/\x1b\[[0-9;]*m//g' ${{env.GITHUB_WORKSPACE}}error.txt
+        sed -i 's/\x1b\[[0-9;]*m//g' ${{env.GITHUB_WORKSPACE}}output.txt
+    - name: Read error.txt
+      if: always() && inputs.from_pr == 'true'
+      id: read_error
+      uses: juliangruber/read-file-action@v1
+      with:
+        path: ${{env.GITHUB_WORKSPACE}}error.txt
+
+    - name: Read output.txt
+      if: always() && inputs.from_pr == 'true'
+      id: read_output
+      uses: juliangruber/read-file-action@v1
+      with:
+        path: ${{env.GITHUB_WORKSPACE}}output.txt
+
     - name: Edit comment with error message
       if: ${{ failure() && inputs.from_pr == 'true' }}
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > Failure: check output ${{ steps.vars.outputs.run-url }}
-
+          > ❌ Failure, check failure [logs](${{ steps.vars.outputs.run-url }}) below
+          Output:
+          ```
+          ${{ steps.read_output.outputs.content }} 
+          ```
+          
+          Error: 
+          ```
+          ${{ steps.read_error.outputs.content }}
+          ```
     - name: Edit comment with dry run message
       if: ${{ inputs.send  == 'false' && inputs.from_pr == 'true'}}
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > Dry run success: ${{ steps.vars.outputs.run-url }}
+          > ✅ Dry run success, see output [here](${{ steps.vars.outputs.run-url }})
           > Rerun the command with send=true to publish the TX to the safe
+          
+          Output:
+          ```
+          ${{ steps.read_output.outputs.content }}
+          ```
       continue-on-error: true
 
     - name: Set PR url
@@ -269,7 +313,6 @@ jobs:
       id: pr-url
       run: |
         echo "::set-output name=pr-url::https://github.com/${{github.repository}}/pull/${{ inputs.pull_request_number }}/files"
-
     - name: Create Telegram message - from PR
       if: ${{ inputs.send  == 'true' && inputs.from_pr == 'true' }}
       run: |
@@ -283,7 +326,6 @@ jobs:
           echo "TELEGRAM_MESSAGE<<EOF" >> $GITHUB_ENV
           echo "$TELEGRAM_MESSAGE" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-
     - name: Create Telegram message - automated
       if: ${{ inputs.send  == 'true' && inputs.from_pr == 'false' }}
       run: |
@@ -298,7 +340,6 @@ jobs:
           echo "TELEGRAM_MESSAGE<<EOF" >> $GITHUB_ENV
           echo "$TELEGRAM_MESSAGE" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
-
     - name: New TX Telegram Alert - Robowoofy Alert Chat
       if: ${{ inputs.send == 'true' }}
       run: |
@@ -317,9 +358,15 @@ jobs:
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
-          > TX with nonce ${{ steps.fn.outputs.nonce }} successfully sent: ${{ steps.vars.outputs.run-url }}. 
-          > Find your queued TX at ${{ steps.fn.outputs.safe_link }}
-          > Your PR has been labeled with tag ${{inputs.network}} ${{ steps.fn.outputs.nonce }}, which you can find here: https://github.com/yearn/strategist-ms/labels?q=${{ steps.fn.outputs.nonce }}
+          > ✅ TX with nonce ${{ steps.fn.outputs.nonce }} successfully sent. Find output logs [here](${{ steps.vars.outputs.run-url }}). 
+          > Find your queued TX on the [Gnosis UI](${{ steps.fn.outputs.safe_link }})
+          >
+          > Your PR has been labeled with tag ${{inputs.network}} ${{ steps.fn.outputs.nonce }}, which you can find [here](https://github.com/yearn/strategist-ms/labels?q=${{ steps.fn.outputs.nonce }}).
+          
+          Output:
+          ```
+          ${{ steps.read_output.outputs.content }}
+          ```
       continue-on-error: true
 
     - uses: actions-ecosystem/action-add-labels@v1
