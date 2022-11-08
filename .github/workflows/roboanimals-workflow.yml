@@ -188,7 +188,7 @@ jobs:
     
     - name: pip install multisig_ci
       run: |
-        pip install multisig_ci==0.3.11
+        pip install multisig_ci==0.4.3
 
     - name: Run Function
       id: fn
