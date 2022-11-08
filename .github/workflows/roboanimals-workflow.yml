@@ -198,7 +198,7 @@ jobs:
       run: |
         pip install multisig_ci==0.4.3
     - name: Starting running message
-      if: ${{ inputs.from_pr == 'true' && inputs.send == 'true'  }}
+      if: ${{ inputs.from_pr == 'true' }}
       uses: peter-evans/create-or-update-comment@v1
       with:
         comment-id: ${{ inputs.comment-id }}
