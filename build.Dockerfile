@@ -25,7 +25,6 @@ python3 -m venv $VIRTUAL_ENV
 
 RUN pip install --no-cache-dir -r requirements.txt && python download_compilers.py && \
  brownie && rm ~/.brownie/deployments.db && \
- axel -o $HOME/deployments.db https://robowoofystorage.blob.core.windows.net/deploymentsdb/deployments.db  && \
  rm -rf ~/.local/lib && \
  rm -rf ~/.cache && \
  npm cache clean --force && \
