@@ -260,7 +260,7 @@ jobs:
         GITHUB_ACTION_SEND: ${{ inputs.send }}
         BE: ${{ inputs.be }}
       run: |
-        brownie run ${{ inputs.file }} ${{ inputs.fn }} --network ${{ inputs.network }}-main-fork 1>output.txt 2>error.txt || EXIT_CODE=$?
+        brownie run ${{ inputs.file }} ${{ inputs.fn }} --network ${{ inputs.network }}-main-fork || EXIT_CODE=$?
         echo "::set-output name=brownie-exit-code::$EXIT_CODE"
         echo "::group:: Output"
         cat output.txt
