@@ -16,7 +16,7 @@ COPY entrypoint.sh /home/pn/entrypoint.sh
 ENV VIRTUAL_ENV=/home/pn/.local/pipx/venvs
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-RUN sudo npm install -g ganache-cli@beta && \
+RUN sudo npm install -g ganache-cli@6.12.2 && \
 pip install --force --no-cache-dir --upgrade pip setuptools && \
 pip install --no-cache-dir pipx && \
 python -m pipx ensurepath --force && \
