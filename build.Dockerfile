@@ -1,40 +1,33 @@
 FROM nikolaik/python-nodejs:python3.9-nodejs16-bullseye
 
 RUN apt-get update \
-    && apt-get install -y sudo \
-    && apt-get install axel
+    && apt-get install -y --no-install-recommends sudo \
+    && apt-get install -y axel --no-install-recommends \
+    && echo pn ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/pn \
+    && chmod 0440 /etc/sudoers.d/pn \
+    && chown -R 1000:1000 /home/pn/
 
-RUN echo pn ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/pn \
-    && chmod 0440 /etc/sudoers.d/pn
-
-RUN chown -R 1000:1000 /home/pn/
 USER pn
 
-RUN axel -o $HOME/deployments.db https://robowoofystorage.blob.core.windows.net/deploymentsdb/deployments.db 
-
-RUN sudo npm install -g ganache-cli@beta
-RUN pip install --force --upgrade pip setuptools
-RUN pip install pipx
-RUN python -m pipx ensurepath --force
-RUN /home/pn/.local/bin/pipx install eth-brownie==1.17
+COPY requirements.txt /requirements.txt
+COPY download_compilers.py /download_compilers.py
+COPY entrypoint.sh /home/pn/entrypoint.sh
 
 ENV VIRTUAL_ENV=/home/pn/.local/pipx/venvs
-RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-COPY requirements.txt /requirements.txt
-RUN pip install -v -r requirements.txt
+RUN sudo npm install -g ganache-cli@6.12.2 && \
+pip install --force --no-cache-dir --upgrade pip setuptools && \
+pip install --no-cache-dir pipx && \
+python -m pipx ensurepath --force && \
+/home/pn/.local/bin/pipx install eth-brownie==1.17 && \
+python3 -m venv $VIRTUAL_ENV
 
-COPY download_compilers.py /download_compilers.py
-RUN python download_compilers.py
-
-COPY entrypoint.sh /home/pn/entrypoint.sh
-RUN brownie && rm ~/.brownie/deployments.db
-RUN ganache-cli &
-RUN sleep 10
-RUN kill -9 $(pgrep -f node)
-
-RUN rm -rf ~/.local/lib
-RUN rm -rf ~/.cache
+RUN pip install --no-cache-dir -r requirements.txt && python download_compilers.py && \
+ brownie && rm ~/.brownie/deployments.db && \
+ rm -rf ~/.local/lib && \
+ rm -rf ~/.cache && \
+ npm cache clean --force && \
+ sudo apt-get clean && sudo rm -rf /var/lib/apt/lists/*
 
 ENTRYPOINT [ "/home/pn/entrypoint.sh" ]
