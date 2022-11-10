@@ -192,13 +192,12 @@ jobs:
         body: |
           > Review requirement failed. Get at least one approval before sending.
 
-    - name: Setup node.js
-      uses: actions/setup-node@v1
+    - uses: actions/setup-node@v3
       with:
-        node-version: '12.x'
+        node-version: 16
 
     - name: Install ganache
-      run: npm install -g ganache-cli@beta
+      run: npm install -g ganache-cli@6.12.2
 
     - name: Set up python 3.8
       uses: actions/setup-python@v2
