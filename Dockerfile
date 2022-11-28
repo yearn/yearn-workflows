@@ -1,2 +1,2 @@
-FROM robowoofyregistry.azurecr.io/robowoofy:60773f93bbf891a04da1c82cea3d4e29561867fb
+FROM robowoofyregistry.azurecr.io/robowoofy:5cbfd4a6e692f4c839f76cfee26d6a5c339141d8
 ENTRYPOINT [ "/home/pn/entrypoint.sh" ]
