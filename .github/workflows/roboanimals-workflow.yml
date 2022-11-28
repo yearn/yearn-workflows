@@ -207,21 +207,6 @@ jobs:
       run: |
         pip install multisig_ci==0.3.11
 
-    - name: Lock on send=true to avoid nonce race condition
-      if: ${{ inputs.send  == 'true' }}
-      uses: shogo82148/actions-mutex@v1
-      with:
-        key: send-${{ inputs.network }}
-
-    - name: Grabbed lock message
-      if: ${{ inputs.from_pr == 'true' && inputs.send == 'true'  }}
-      uses: peter-evans/create-or-update-comment@v1
-      with:
-        comment-id: ${{ inputs.comment-id }}
-        body: |
-          > 🔐 Successfully grabbed lock for ${{ inputs.network }}
-          >
-
     - name: Run Function
       id: fn
       timeout-minutes: 45
