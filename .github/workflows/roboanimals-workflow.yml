@@ -97,6 +97,10 @@ on:
         required: true
       PAT:
         required: true
+      YPRICEAPI_USER:
+        required: false
+      YPRICEAPI_PASS:
+        required: false
 
 jobs:
   roboanimalsWorkflow:
