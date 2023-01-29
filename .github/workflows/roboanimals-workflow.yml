@@ -225,8 +225,8 @@ jobs:
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         GITHUB_ACTION_SEND: ${{ inputs.send }}
         BE: ${{ inputs.be }}
-        YPRICEAPI_USER: ${{ inputs.YPRICEAPI_USER }}
-        YPRICEAPI_PASS: ${{ inputs.YPRICEAPI_PASS }}
+        YPRICEAPI_USER: ${{ secrets.YPRICEAPI_USER }}
+        YPRICEAPI_PASS: ${{ secrets.YPRICEAPI_PASS }}
       uses: yearn/yearn-workflows@use-weiroll
       with:
         file: ${{inputs.file}} 
