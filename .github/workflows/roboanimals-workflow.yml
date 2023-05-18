@@ -108,11 +108,11 @@ jobs:
     - uses: hmarr/debug-action@v2
     - name: Create URL to the run output
       id: vars
-      run: echo ::set-output name=run-url::https://github.com/${{github.repository}}/actions/runs/$GITHUB_RUN_ID
+      run: echo "run-url=https://github.com/${{github.repository}}/actions/runs/$GITHUB_RUN_ID" >> $GITHUB_OUTPUT
 
     - name: Save runner name
       id: runner_name
-      run: echo ::set-output name=runner_name::$RUNNER_NAME
+      run: echo "runner_name=$RUNNER_NAME" >> $GITHUB_OUTPUT
       
     - name: Edit comment with link to run
       if: ${{ inputs.from_pr == 'true' }}
