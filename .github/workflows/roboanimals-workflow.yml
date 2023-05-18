@@ -103,6 +103,8 @@ on:
 jobs:
   roboanimalsWorkflow:
     runs-on: ${{ inputs.runs_on }}
+    concurrency:
+      group: ${{ inputs.send == 'true' && 'true' || $GITHUB_RUN_ID }}
     timeout-minutes: 60
     steps:
     - uses: hmarr/debug-action@v2
@@ -212,29 +214,6 @@ jobs:
         pip install wheel
         pip install -r requirements-dev.txt -f https://pypi.org/project/multisig-ci
 
-    - name: Grab lock message
-      if: ${{ inputs.from_pr == 'true' && inputs.send == 'true'  }}
-      uses:  peter-evans/create-or-update-comment@v2.1.1
-      with:
-        comment-id: ${{ inputs.comment-id }}
-        body: |
-          > 🔓 Grabbing lock for ${{ inputs.network }}.... Taking too long? [Read this.](https://github.com/yearn/yearn-workflows/tree/master#stuck-on-grabbing-lock)
-
-    - name: Lock on send=true to avoid nonce race condition
-      if: ${{ inputs.send  == 'true' }}
-      uses: shogo82148/actions-mutex@v1
-      with:
-        key: send-${{ inputs.network }}
-
-    - name: Grabbed lock message
-      if: ${{ inputs.from_pr == 'true' && inputs.send == 'true'  }}
-      uses:  peter-evans/create-or-update-comment@v2.1.1
-      with:
-        comment-id: ${{ inputs.comment-id }}
-        body: |
-          > 🔐 Successfully grabbed lock for ${{ inputs.network }}
-          >
-    
     - name: Add network config
       timeout-minutes: 1
       run: |
