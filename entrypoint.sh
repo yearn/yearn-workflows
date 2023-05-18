@@ -9,7 +9,7 @@ cp network-config.yaml ~/.brownie/network-config.yaml
 brownie compile
 python3 -m multisig_ci brownie run $1 $2 --network $3-main-fork 1>output.txt 2>error.txt
 EXIT_CODE=$?
-echo "::set-output name=brownie-exit-code::$EXIT_CODE"
+echo "brownie-exit-code=$EXIT_CODE" >> $GITHUB_OUTPUT
 
 echo "::group:: Output"
 cat output.txt
@@ -19,18 +19,18 @@ echo "::group:: Error"
 cat error.txt
 echo "::endgroup::"
 
-echo "::set-output name=nonce::$NONCE"
-echo "::set-output name=safe_link::$SAFE_LINK"
+echo "nonce=$NONCE" >> $GITHUB_OUTPUT
+echo "safe_link=$SAFE_LINK" >> $GITHUB_OUTPUT
 echo "Action send is $GITHUB_ACTION_SEND"
 echo "exit code is $EXIT_CODE"
 
 if [[ "$GITHUB_ACTION_SEND" == "true" && "$NONCE" == "" ]]
 then
-    echo "::set-output name=error-reason::'failed to find nonce'"
+    echo "error-reason='failed to find nonce'" >> $GITHUB_OUTPUT
     exit 1
 elif [[ "$GITHUB_ACTION_SEND" == "true" && "$SAFE_LINK" == "" ]]
 then
-    echo "::set-output name=error-reason::'failed to find safe link'"
+    echo "error-reason='failed to find safe link'" >> $GITHUB_OUTPUT
     exit 1
 else
     exit $EXIT_CODE
