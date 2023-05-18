@@ -104,7 +104,7 @@ jobs:
   roboanimalsWorkflow:
     runs-on: ${{ inputs.runs_on }}
     concurrency:
-      group: ${{ inputs.send == 'true' && 'true' || $GITHUB_RUN_ID }}
+      group: ${{ inputs.send == 'true' && 'true' || github.run_id }}
     timeout-minutes: 60
     steps:
     - uses: hmarr/debug-action@v2
