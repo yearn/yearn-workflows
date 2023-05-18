@@ -108,15 +108,15 @@ jobs:
     - uses: hmarr/debug-action@v2
     - name: Create URL to the run output
       id: vars
-      run: echo ::set-output name=run-url::https://github.com/${{github.repository}}/actions/runs/$GITHUB_RUN_ID
+      run: echo "run-url=https://github.com/${{github.repository}}/actions/runs/$GITHUB_RUN_ID" >> $GITHUB_OUTPUT
 
     - name: Save runner name
       id: runner_name
-      run: echo ::set-output name=runner_name::$RUNNER_NAME
+      run: echo "runner_name=$RUNNER_NAME" >> $GITHUB_OUTPUT
       
     - name: Edit comment with link to run
       if: ${{ inputs.from_pr == 'true' }}
-      uses: peter-evans/create-or-update-comment@v1
+      uses:  peter-evans/create-or-update-comment@v2.1.1
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
@@ -188,7 +188,7 @@ jobs:
 
     - name: Fail on no reviews
       if: ${{ inputs.check_reviews == 'true' && failure() }}
-      uses: peter-evans/create-or-update-comment@v1
+      uses:  peter-evans/create-or-update-comment@v2.1.1
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
@@ -214,7 +214,7 @@ jobs:
 
     - name: Grab lock message
       if: ${{ inputs.from_pr == 'true' && inputs.send == 'true'  }}
-      uses: peter-evans/create-or-update-comment@v1
+      uses:  peter-evans/create-or-update-comment@v2.1.1
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
@@ -228,7 +228,7 @@ jobs:
 
     - name: Grabbed lock message
       if: ${{ inputs.from_pr == 'true' && inputs.send == 'true'  }}
-      uses: peter-evans/create-or-update-comment@v1
+      uses:  peter-evans/create-or-update-comment@v2.1.1
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
@@ -264,7 +264,7 @@ jobs:
         BE: ${{ inputs.be }}
       run: |
         python3 -m multisig_ci brownie run ${{ inputs.file }} ${{ inputs.fn }} --network ${{ inputs.network }}-main-fork 1>output.txt 2>error.txt || EXIT_CODE=$?
-        echo "::set-output name=brownie-exit-code::$EXIT_CODE"
+        echo "brownie-exit-code=$EXIT_CODE" >> $GITHUB_OUTPUT
         echo "::group:: Output"
         cat output.txt
         echo "::endgroup::"
@@ -283,7 +283,7 @@ jobs:
         echo "::group:: Error"
         cat error.txt
         echo "::endgroup::"
-        echo "::set-output name=brownie-timeout::true"
+        echo "brownie-timeout=true" >> $GITHUB_OUTPUT
 
     - name: Check failure
       id: failcheck
@@ -298,7 +298,7 @@ jobs:
 
     - name: Nonce fail check, add comment
       if: inputs.send == 'true' && env.NONCE == ''
-      uses: peter-evans/create-or-update-comment@v1
+      uses:  peter-evans/create-or-update-comment@v2.1.1
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
@@ -319,7 +319,7 @@ jobs:
 
     - name: Safe url check, add comment
       if: inputs.send == 'true' && env.SAFE_LINK == ''
-      uses: peter-evans/create-or-update-comment@v1
+      uses:  peter-evans/create-or-update-comment@v2.1.1
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
@@ -352,7 +352,7 @@ jobs:
       
     - name: Edit comment with error message
       if: ${{ failure() && inputs.from_pr == 'true' }}
-      uses: peter-evans/create-or-update-comment@v1
+      uses:  peter-evans/create-or-update-comment@v2.1.1
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
@@ -370,7 +370,7 @@ jobs:
 
     - name: Edit comment with dry run message
       if: ${{ inputs.send  == 'false' && inputs.from_pr == 'true'}}
-      uses: peter-evans/create-or-update-comment@v1
+      uses:  peter-evans/create-or-update-comment@v2.1.1
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
@@ -387,7 +387,7 @@ jobs:
       if: ${{ inputs.from_pr == 'true' }}
       id: pr-url
       run: |
-        echo "::set-output name=pr-url::https://github.com/${{github.repository}}/pull/${{ inputs.pull_request_number }}/files"
+        echo "pr-url=https://github.com/${{github.repository}}/pull/${{ inputs.pull_request_number }}/files" >> $GITHUB_OUTPUT
 
     - name: Create Telegram message - from PR
       if: ${{ inputs.send  == 'true' && inputs.from_pr == 'true' }}
@@ -432,7 +432,7 @@ jobs:
 
     - name: Edit comment with full run message
       if: ${{ inputs.send  == 'true' && inputs.from_pr == 'true' }}
-      uses: peter-evans/create-or-update-comment@v1
+      uses:  peter-evans/create-or-update-comment@v2.1.1
       with:
         comment-id: ${{ inputs.comment-id }}
         body: |
@@ -473,7 +473,7 @@ jobs:
 
     - name: Add reaction
       if: ${{ inputs.from_pr == 'true' }}
-      uses: peter-evans/create-or-update-comment@v1
+      uses:  peter-evans/create-or-update-comment@v2.1.1
       with:
         comment-id: ${{ inputs.comment-id }}
         reaction-type: hooray
