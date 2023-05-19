@@ -438,13 +438,6 @@ jobs:
             labels: ['${{ inputs.network }} #${{ env.NONCE }}']
           })
 
-    - uses: peter-evans/close-pull@v3.0.1
-      if: ${{ inputs.send  == 'true' && inputs.close_pr == 'true' && inputs.from_pr == 'true' }}
-      with:
-        pull-request-number: ${{ inputs.pull_request_number }}
-        comment: Auto-closing pull request
-      continue-on-error: true
-
     - name: Delete PRs head branches
       if: ${{ inputs.delete-branch-after-send == 'true' && inputs.send  == 'true' && inputs.from_pr == 'true'}}
       uses: pinguinsquad/action-delete-branch@v4.0.0
