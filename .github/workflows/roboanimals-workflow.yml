@@ -134,24 +134,24 @@ jobs:
         git submodule update --init --recursive
 
     - name: Get PR title
-      uses: actions/github-script@v3
+      uses: actions/github-script@v6.4.1
       if: ${{ inputs.from_pr == 'true' }}
       id: get-pr-title
       with:
         script: |
-          const {data: pull} = await github.pulls.get({...context.repo, pull_number: ${{ inputs.pull_request_number }}});
+          const {data: pull} = await github.rest.pulls.get({...context.repo, pull_number: ${{ inputs.pull_request_number }}});
           if (!pull.title) {
             return 'Empty Title 🤡';
           }
           return pull.title.replace(/\$/g, '💲');
 
     - name: Get PR body
-      uses: actions/github-script@v3
+      uses: actions/github-script@v6.4.1
       if: ${{ inputs.from_pr == 'true' }}
       id: get-pr-body
       with:
         script: |
-          const {data: pull} = await github.pulls.get({...context.repo, pull_number: ${{ inputs.pull_request_number }}});
+          const {data: pull} = await github.rest.pulls.get({...context.repo, pull_number: ${{ inputs.pull_request_number }}});
           if (!pull.body) {
             return 'Empty Description 🤡';
           }
@@ -159,24 +159,24 @@ jobs:
 
 
     - name: Get PR author
-      uses: actions/github-script@v3
+      uses: actions/github-script@v6.4.1
       if: ${{ inputs.from_pr == 'true' }}
       id: get-pr-author
       with:
         script: |
-          const {data: pull} = await github.pulls.get({...context.repo, pull_number: ${{ inputs.pull_request_number }}});
+          const {data: pull} = await github.rest.pulls.get({...context.repo, pull_number: ${{ inputs.pull_request_number }}});
           if (pull.user.login === null) {
             return 'Empty Author 🤡';
           }
           return pull.user.login;
 
     - name: Pull down reviews
-      uses: actions/github-script@v3
+      uses: actions/github-script@v6.4.1
       if: ${{ inputs.check_reviews == 'true' }}
       id: get-pr
       with:
         script: |
-          const { data: reviews } = await github.pulls.listReviews({
+          const { data: reviews } = await github.rest.pulls.listReviews({
             ...context.repo,
             pull_number: ${{ inputs.pull_request_number }},
           })
@@ -199,7 +199,7 @@ jobs:
           > Review requirement failed. Get at least one approval before sending.
 
     - name: Set up python 3.8
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.8
     
@@ -380,25 +380,20 @@ jobs:
           ```
       continue-on-error: true
 
-    - uses: actions-ecosystem/action-add-labels@v1
+    - uses: actions/github-script@v6.4.1
       if: ${{ inputs.send  == 'true' && inputs.from_pr == 'true' }}
       with:
-        number: ${{ inputs.pull_request_number }}
-        github_token: ${{ secrets.PAT }}
-        labels: |
-          ${{ inputs.network }} #${{ steps.fn.outputs.nonce }}
-      continue-on-error: true
-
-    - uses: peter-evans/close-pull@v1
-      if: ${{ inputs.send  == 'true' && inputs.close_pr == 'true' && inputs.from_pr == 'true' }}
-      with:
-        pull-request-number: ${{ inputs.pull_request_number }}
-        comment: Auto-closing pull request
-      continue-on-error: true
+        script: |
+          github.rest.issues.addLabels({
+            issue_number: ${{ inputs.pull_request_number }},
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: ['${{ inputs.network }} #${{ env.NONCE }}']
+          })
 
     - name: Delete PRs head branches
       if: ${{ inputs.delete-branch-after-send == 'true' && inputs.send  == 'true' && inputs.from_pr == 'true'}}
-      uses: dawidd6/action-delete-branch@v3
+      uses: pinguinsquad/action-delete-branch@v4.0.0
       with:
         github_token: ${{ secrets.PAT }}
         numbers: ${{ inputs.pull_request_number }}
