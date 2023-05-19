@@ -426,16 +426,19 @@ jobs:
           ```
       continue-on-error: true
 
-    - uses: actions-ecosystem/action-add-labels@v1
+
+    - uses: actions/github-script@v6.4.1
       if: ${{ inputs.send  == 'true' && inputs.from_pr == 'true' }}
       with:
-        number: ${{ inputs.pull_request_number }}
-        github_token: ${{ secrets.PAT }}
-        labels: |
-          ${{ inputs.network }} #${{ env.NONCE }}
-      continue-on-error: true
+        script: |
+          github.rest.issues.addLabels({
+            issue_number: ${{ inputs.pull_request_number }},
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            labels: ['${{ inputs.network }} #${{ env.NONCE }}']
+          })
 
-    - uses: peter-evans/close-pull@v1
+    - uses: peter-evans/close-pull@v3.0.1
       if: ${{ inputs.send  == 'true' && inputs.close_pr == 'true' && inputs.from_pr == 'true' }}
       with:
         pull-request-number: ${{ inputs.pull_request_number }}
@@ -444,7 +447,7 @@ jobs:
 
     - name: Delete PRs head branches
       if: ${{ inputs.delete-branch-after-send == 'true' && inputs.send  == 'true' && inputs.from_pr == 'true'}}
-      uses: dawidd6/action-delete-branch@v3
+      uses: pinguinsquad/action-delete-branch@v4.0.0
       with:
         github_token: ${{ secrets.PAT }}
         numbers: ${{ inputs.pull_request_number }}
