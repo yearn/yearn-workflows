@@ -56,7 +56,7 @@ if __name__ == '__main__':
         for asset in release['assets']:
             if asset['name'].endswith('linux'):
                 download_urls.append(asset['browser_download_url'])
-                version_ender = 'vyper-' + replace_all(release['name'], ['v', ' ', 'Vyper', 'Version'])
+                version_ender = 'vyper-' + replace_all(release['name'], ['v', ' ', 'Vyper', 'Version', '("CommonAdder")'])
                 print(version_ender)
                 urls_to_version[asset['browser_download_url']] = os.path.join(home_directory, '.vvm', version_ender)
 
