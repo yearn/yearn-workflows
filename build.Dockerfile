@@ -20,7 +20,7 @@ RUN sudo npm install -g ganache-cli@6.12.2 && \
 pip install --force --no-cache-dir --upgrade pip setuptools && \
 pip install --no-cache-dir pipx && \
 python -m pipx ensurepath --force && \
-/home/pn/.local/bin/pipx install  "eth-brownie==1.19.2"--pip-args="cython<3.0 pyyaml>=5.4.1,<6 --no-build-isolation" && \
+/home/pn/.local/bin/pipx install  "eth-brownie==1.19.2" --pip-args="cython<3.0 pyyaml>=5.4.1,<6 --no-build-isolation" && \
 python3 -m venv $VIRTUAL_ENV
 
 RUN pip install --no-cache-dir -r requirements.txt && python download_compilers.py && \
