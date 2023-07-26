@@ -1,4 +1,4 @@
-FROM nikolaik/python-nodejs:python3.9-nodejs16-bullseye
+FROM nikolaik/python-nodejs:python3.10-nodejs16-bullseye
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends sudo \
@@ -20,7 +20,7 @@ RUN sudo npm install -g ganache-cli@6.12.2 && \
 pip install --force --no-cache-dir --upgrade pip setuptools && \
 pip install --no-cache-dir pipx && \
 python -m pipx ensurepath --force && \
-/home/pn/.local/bin/pipx install eth-brownie==1.17 && \
+/home/pn/.local/bin/pipx install eth-brownie==1.19.3 && \
 python3 -m venv $VIRTUAL_ENV
 
 RUN pip install --no-cache-dir -r requirements.txt && python download_compilers.py && \

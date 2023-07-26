@@ -227,7 +227,7 @@ jobs:
         BE: ${{ inputs.be }}
         YPRICEAPI_USER: ${{ secrets.YPRICEAPI_USER }}
         YPRICEAPI_PASS: ${{ secrets.YPRICEAPI_PASS }}
-      uses: yearn/yearn-workflows@use-weiroll
+      uses: yearn/yearn-workflows@upgrade-brownie
       with:
         file: ${{inputs.file}} 
         network: ${{inputs.network}}
