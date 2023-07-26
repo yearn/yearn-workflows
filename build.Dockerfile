@@ -20,11 +20,11 @@ RUN sudo npm install -g ganache-cli@6.12.2 && \
 pip install --force --no-cache-dir --upgrade pip setuptools && \
 pip install --no-cache-dir pipx && \
 python -m pipx ensurepath --force && \
+pip install --no-cache-dir --no-build-isolation "cython<3.0" "pyyaml>=5.4.1,<6" && \
 /home/pn/.local/bin/pipx install eth-brownie==1.19.3 && \
 python3 -m venv $VIRTUAL_ENV
 
-RUN pip install --no-cache-dir --no-build-isolation "cython<3.0" "pyyaml>=5.4.1,<6"  && \
- pip install --no-cache-dir -r requirements.txt && python download_compilers.py && \
+RUN pip install --no-cache-dir -r requirements.txt && python download_compilers.py && \
  brownie && rm ~/.brownie/deployments.db && \
  rm -rf ~/.local/lib && \
  rm -rf ~/.cache && \
