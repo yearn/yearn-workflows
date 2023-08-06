@@ -201,18 +201,18 @@ jobs:
         node-version: 16
 
     - name: Install ganache
-      run: npm install -g ganache-cli@6.12.2
+      run: npm install -g ganache@7.9.0 
 
-    - name: Set up python 3.8
+    - name: Set up python 3.10
       uses: actions/setup-python@v4
       with:
-        python-version: 3.8
+        python-version: 3.10
 
     - name: Install python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install wheel
-        pip install -r requirements-dev.txt -f https://pypi.org/project/multisig-ci
+        pip install -r requirements-dev.txt -f https://pypi.org/project/multisig-ci --pip-args="cython<3.0 pyyaml>=5.4.1,<6 --no-build-isolation"
 
     - name: Add network config
       timeout-minutes: 1
