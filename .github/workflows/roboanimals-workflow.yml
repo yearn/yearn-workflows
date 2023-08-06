@@ -212,7 +212,8 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install wheel
-        pip install -r requirements-dev.txt -f https://pypi.org/project/multisig-ci --pip-args="cython<3.0 pyyaml>=5.4.1,<6 --no-build-isolation"
+        pip install "cython<3.0" "pyyaml>=5.4.1,<6" --no-build-isolation
+        pip install -r requirements-dev.txt -f https://pypi.org/project/multisig-ci
 
     - name: Add network config
       timeout-minutes: 1
