@@ -1,2 +1,2 @@
 # yearn-workflows
-Github actions workflows
+Github actions workflow
