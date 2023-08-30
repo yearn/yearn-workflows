@@ -93,6 +93,10 @@ on:
         required: true
       SNOWTRACE_TOKEN:
         required: true
+      OPTISCAN_TOKEN:
+        required: false
+      BASESCAN_TOKEN:
+        required: false
       PRIVATE_KEY:
         required: true
       PAT:
@@ -222,6 +226,8 @@ jobs:
         BSCSCAN_TOKEN: ${{ secrets.BSCSCAN_TOKEN }}
         ARBISCAN_TOKEN: ${{ secrets.ARBISCAN_TOKEN }}
         SNOWTRACE_TOKEN: ${{ secrets.SNOWTRACE_TOKEN }}
+        OPTIMISMSCAN_TOKEN: ${{ secrets.OPTISCAN_TOKEN }}
+        BASESCAN_TOKEN: ${{ secrets.BASESCAN_TOKEN }}
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         GITHUB_ACTION_SEND: ${{ inputs.send }}
         BE: ${{ inputs.be }}
