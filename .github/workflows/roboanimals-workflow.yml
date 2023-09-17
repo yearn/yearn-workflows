@@ -97,6 +97,8 @@ on:
         required: false
       BASESCAN_TOKEN:
         required: false
+      YRPC_API_KEY:
+        required: false
       PRIVATE_KEY:
         required: true
       PAT:
@@ -243,6 +245,7 @@ jobs:
         OPTIMISMSCAN_TOKEN: ${{ secrets.OPTISCAN_TOKEN }}
         BASESCAN_TOKEN: ${{ secrets.BASESCAN_TOKEN }}
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        YRPC_API_KEY: ${{ secrets.YRPC_API_KEY }}
         GITHUB_ACTION_SEND: ${{ inputs.send }}
         BE: ${{ inputs.be }}
       run: |
