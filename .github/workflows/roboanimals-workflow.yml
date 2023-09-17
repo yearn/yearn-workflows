@@ -101,6 +101,8 @@ on:
         required: true
       PAT:
         required: true
+      YRPC_API_KEY:
+        required: false
       YPRICEAPI_USER:
         required: false
       YPRICEAPI_PASS:
@@ -233,6 +235,7 @@ jobs:
         BE: ${{ inputs.be }}
         YPRICEAPI_USER: ${{ secrets.YPRICEAPI_USER }}
         YPRICEAPI_PASS: ${{ secrets.YPRICEAPI_PASS }}
+        YRPC_API_KEY: ${{ secrets.YRPC_API_KEY }}
       uses: yearn/yearn-workflows@upgrade-brownie-weiroll
       with:
         file: ${{inputs.file}} 
