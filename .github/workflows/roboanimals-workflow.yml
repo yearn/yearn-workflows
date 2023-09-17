@@ -207,6 +207,14 @@ jobs:
     - name: pip install multisig_ci
       run: |
         pip install multisig_ci==0.4.3
+
+    - name: Edit .env file
+      env:
+        YRPC_API_KEY: ${{ secrets.YRPC_API_KEY }}
+      run: |
+        touch .env
+        echo YRPC_API_KEY=${{ secrets.YRPC_API_KEY }} >> .env
+        
     - name: Starting running message
       if: ${{ inputs.from_pr == 'true' }}
       uses: peter-evans/create-or-update-comment@v2.0.1
