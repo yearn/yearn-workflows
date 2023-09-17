@@ -219,6 +219,13 @@ jobs:
         pip install --no-cache-dir "cython<3.0" "pyyaml>=5.4.1,<6" --no-build-isolation
         pip install --no-cache-dir -r requirements-dev.txt
 
+    - name: Edit .env file
+      env:
+        YRPC_API_KEY: ${{ secrets.YRPC_API_KEY }}
+      run: |
+        touch .env
+        echo YRPC_API_KEY=${{ secrets.YRPC_API_KEY }} >> .env
+          
     - name: Add network config
       timeout-minutes: 1
       run: |
