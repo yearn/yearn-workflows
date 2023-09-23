@@ -55,10 +55,12 @@ if __name__ == '__main__':
     for release in releases:
         for asset in release['assets']:
             if asset['name'].endswith('linux'):
-                download_urls.append(asset['browser_download_url'])
+                url = asset['browser_download_url']
                 version_ender = 'vyper-' + replace_all(release['name'], ['v', ' ', 'Vyper', 'Version', '("CommonAdder")'])
-                print(version_ender)
-                urls_to_version[asset['browser_download_url']] = os.path.join(home_directory, '.vvm', version_ender)
+                if 'rc' in version_ender:
+                    continue
+                download_urls.append(url)
+                urls_to_version[url] = os.path.join(home_directory, '.vvm', version_ender)
 
     versions = get_installable_solc_versions()
 
