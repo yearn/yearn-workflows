@@ -85,6 +85,8 @@ on:
         required: true
       FTMSCAN_TOKEN:
         required: true
+      BASESCAN_TOKEN:
+        required: true
       ETHERSCAN_TOKEN:
         required: true
       BSCSCAN_TOKEN:
@@ -235,6 +237,7 @@ jobs:
         COORDINAPE_BEARER_TOKEN: ${{ secrets.COORDINAPE_BEARER_TOKEN }}
         POLYGONSCAN_TOKEN: ${{ secrets.POLYGONSCAN_TOKEN }}
         FTMSCAN_TOKEN: ${{ secrets.FTMSCAN_TOKEN }}
+        BASESCAN_TOKEN: ${{ secrets.BASESCAN_TOKEN }}
         ETHERSCAN_TOKEN: ${{ secrets.ETHERSCAN_TOKEN }}
         BSCSCAN_TOKEN: ${{ secrets.BSCSCAN_TOKEN }}
         ARBISCAN_TOKEN: ${{ secrets.ARBISCAN_TOKEN }}
