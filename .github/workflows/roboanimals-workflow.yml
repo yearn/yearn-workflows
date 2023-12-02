@@ -205,6 +205,11 @@ jobs:
     - name: Install ganache
       run: npm install -g ganache-cli@6.12.2
 
+    - name: Install Anvil
+      run: |
+        curl -L https://foundry.paradigm.xyz | bash
+        foundryup
+
     - name: Set up python 3.8
       uses: actions/setup-python@v4
       with:
