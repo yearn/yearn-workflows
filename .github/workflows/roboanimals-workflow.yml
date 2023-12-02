@@ -264,6 +264,9 @@ jobs:
         GITHUB_ACTION_SEND: ${{ inputs.send }}
         BE: ${{ inputs.be }}
       run: |
+        echo $PATH
+        echo $HOME
+        export PATH="$PATH:$HOME/.foundry/bin"
         python3 -m multisig_ci brownie run ${{ inputs.file }} ${{ inputs.fn }} --network ${{ inputs.network }}-main-fork 1>output.txt 2>error.txt || EXIT_CODE=$?
         echo "brownie-exit-code=$EXIT_CODE" >> $GITHUB_OUTPUT
         echo "::group:: Output"
