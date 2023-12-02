@@ -213,10 +213,10 @@ jobs:
         export PATH="$PATH:$HOME/.foundry/bin"
 
     - name: Foundry Up
-      run: foundryup
+      run: $HOME/.foundry/bin/foundryup
     
     - name: Make sure Anvil exists
-      run: anvil --help
+      run: $HOME/.foundry/bin/anvil --help
 
     - name: Set up python 3.10
       uses: actions/setup-python@main
