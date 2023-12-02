@@ -95,6 +95,8 @@ on:
         required: true
       OPTISCAN_TOKEN:
         required: false
+      BASESCAN_TOKEN:
+        required: false
       YRPC_API_KEY:
         required: false
       PRIVATE_KEY:
@@ -203,19 +205,43 @@ jobs:
         node-version: 16
 
     - name: Install ganache
-      run: npm install -g ganache-cli@6.12.2
+      run: npm install -g ganache@7.9.0
 
-    - name: Set up python 3.8
-      uses: actions/setup-python@v4
+    - name: Download Foundry
+      run: |
+        curl -L https://foundry.paradigm.xyz | bash
+
+    - name: Foundry Up
+      run: $HOME/.foundry/bin/foundryup
+    
+    - name: Make sure Anvil exists
+      run: $HOME/.foundry/bin/anvil --help
+    
+    - name: Add Anvil to Path
+      run: echo "$HOME/.foundry/bin" >> $GITHUB_PATH
+
+    - name: Anvil works from path
+      run: anvil --help
+
+    - name: Set up python 3.10
+      uses: actions/setup-python@main
       with:
-        python-version: 3.8
+        python-version: '3.10'
 
     - name: Install python dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install wheel
-        pip install -r requirements-dev.txt -f https://pypi.org/project/multisig-ci
+        pip install --force --no-cache-dir --upgrade pip setuptools
+        pip install --no-cache-dir wheel
+        pip install --no-cache-dir "cython<3.0" "pyyaml>=5.4.1,<6" --no-build-isolation
+        pip install --no-cache-dir -r requirements-dev.txt
 
+    - name: Edit .env file
+      env:
+        YRPC_API_KEY: ${{ secrets.YRPC_API_KEY }}
+      run: |
+        touch .env
+        echo YRPC_API_KEY=${{ secrets.YRPC_API_KEY }} >> .env
+          
     - name: Add network config
       timeout-minutes: 1
       run: |
@@ -239,8 +265,10 @@ jobs:
         BSCSCAN_TOKEN: ${{ secrets.BSCSCAN_TOKEN }}
         ARBISCAN_TOKEN: ${{ secrets.ARBISCAN_TOKEN }}
         SNOWTRACE_TOKEN: ${{ secrets.SNOWTRACE_TOKEN }}
-        OPTISCAN_TOKEN: ${{ secrets.OPTISCAN_TOKEN }}
+        OPTIMISMSCAN_TOKEN: ${{ secrets.OPTISCAN_TOKEN }}
+        BASESCAN_TOKEN: ${{ secrets.BASESCAN_TOKEN }}
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+        YRPC_API_KEY: ${{ secrets.YRPC_API_KEY }}
         GITHUB_ACTION_SEND: ${{ inputs.send }}
         BE: ${{ inputs.be }}
         YRPC_API_KEY: ${{ secrets.YRPC_API_KEY }}
