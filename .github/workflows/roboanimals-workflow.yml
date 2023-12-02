@@ -200,13 +200,6 @@ jobs:
         body: |
           > Review requirement failed. Get at least one approval before sending.
 
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 16
-
-    - name: Install ganache
-      run: npm install -g ganache@7.9.0
-
     - name: Download Foundry
       run: |
         curl -L https://foundry.paradigm.xyz | bash
