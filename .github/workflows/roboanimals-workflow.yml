@@ -200,12 +200,21 @@ jobs:
         body: |
           > Review requirement failed. Get at least one approval before sending.
 
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 16
+    - name: Download Foundry
+      run: |
+        curl -L https://foundry.paradigm.xyz | bash
 
-    - name: Install ganache
-      run: npm install -g ganache@7.9.0 
+    - name: Foundry Up
+      run: $HOME/.foundry/bin/foundryup
+    
+    - name: Make sure Anvil exists
+      run: $HOME/.foundry/bin/anvil --help
+    
+    - name: Add Anvil to Path
+      run: echo "$HOME/.foundry/bin" >> $GITHUB_PATH
+
+    - name: Anvil works from path
+      run: anvil --help
 
     - name: Set up python 3.10
       uses: actions/setup-python@main
