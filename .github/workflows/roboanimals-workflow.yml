@@ -210,7 +210,10 @@ jobs:
     - name: Install Anvil
       run: |
         curl -L https://foundry.paradigm.xyz | bash
-        ./.foundry/bin/foundryup
+        export PATH="$PATH:$HOME/.foundry/bin"
+        echo $PATH
+        echo $HOME
+        foundryup
 
     - name: Set up python 3.10
       uses: actions/setup-python@main
