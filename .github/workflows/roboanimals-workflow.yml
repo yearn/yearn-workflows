@@ -210,8 +210,7 @@ jobs:
     - name: Install Anvil
       run: |
         curl -L https://foundry.paradigm.xyz | bash
-        source $HOME/.bashrc
-        foundryup
+        ./.foundry/bin/foundryup
 
     - name: Set up python 3.10
       uses: actions/setup-python@main
