@@ -210,13 +210,18 @@ jobs:
     - name: Download Foundry
       run: |
         curl -L https://foundry.paradigm.xyz | bash
-        export PATH="$PATH:$HOME/.foundry/bin"
 
     - name: Foundry Up
       run: $HOME/.foundry/bin/foundryup
     
     - name: Make sure Anvil exists
       run: $HOME/.foundry/bin/anvil --help
+    
+    - name: Add Anvil to Path
+      run: echo "$HOME/.foundry/bin" >> $GITHUB_PATH
+
+    - name: Anvil works from path
+      run: anvil --help
 
     - name: Set up python 3.10
       uses: actions/setup-python@main
