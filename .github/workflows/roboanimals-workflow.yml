@@ -244,7 +244,7 @@ jobs:
         YPRICEAPI_USER: ${{ secrets.YPRICEAPI_USER }}
         YPRICEAPI_PASS: ${{ secrets.YPRICEAPI_PASS }}
         YRPC_API_KEY: ${{ secrets.YRPC_API_KEY }}
-      uses: yearn/yearn-workflows@upgrade-brownie
+      uses: yearn/yearn-workflows@anvil-docker
       with:
         file: ${{inputs.file}} 
         network: ${{inputs.network}}
