@@ -2,6 +2,7 @@
 echo $HOME
 export PATH=/home/pn/.local/bin:${PATH}
 export PATH=/github/home/.local/bin:${PATH}
+export PATH=/home/pn/.foundry/bin:${PATH}
 
 sudo chown -R 1000:1000 /github/workspace
 sudo chown -R 1000:1000 /github/home

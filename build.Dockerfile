@@ -1,5 +1,7 @@
 FROM nikolaik/python-nodejs:python3.10-nodejs16-bullseye
 
+RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends sudo \
     && apt-get install -y axel --no-install-recommends \
@@ -16,9 +18,12 @@ COPY entrypoint.sh /home/pn/entrypoint.sh
 ENV VIRTUAL_ENV=/home/pn/.local/pipx/venvs
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
+RUN curl -L https://foundry.paradigm.xyz | bash && \
+$HOME/.foundry/bin/foundryup
+
 RUN sudo npm install -g ganache@7.9.0 && \
 pip install --force --no-cache-dir --upgrade pip setuptools && \
-pip install --no-cache-dir pipx && \
+pip install --no-cache-dir pipx==1.2.0 && \
 python -m pipx ensurepath --force && \
 /home/pn/.local/bin/pipx install  "eth-brownie==1.19.2" --pip-args="cython<3.0 pyyaml>=5.4.1,<6 --no-build-isolation" && \
 python3 -m venv $VIRTUAL_ENV
