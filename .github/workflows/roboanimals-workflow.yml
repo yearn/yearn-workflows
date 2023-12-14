@@ -101,6 +101,8 @@ on:
         required: false
       YPRICEAPI_PASS:
         required: false
+      YPRICEAPI_USER:
+        required: false
       PRIVATE_KEY:
         required: true
       PAT:
@@ -265,6 +267,7 @@ jobs:
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         YRPC_API_KEY: ${{ secrets.YRPC_API_KEY }}
         GITHUB_ACTION_SEND: ${{ inputs.send }}
+        YPRICEAPI_USER: ${{ secrets.YPRICEAPI_USER }}
         YPRICEAPI_PASS: ${{ secrets.YPRICEAPI_PASS }}
         BE: ${{ inputs.be }}
       run: |
