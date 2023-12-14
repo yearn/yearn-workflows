@@ -99,6 +99,8 @@ on:
         required: false
       YRPC_API_KEY:
         required: false
+      YPRICEAPI_PASS:
+        required: false
       PRIVATE_KEY:
         required: true
       PAT:
@@ -263,6 +265,7 @@ jobs:
         PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
         YRPC_API_KEY: ${{ secrets.YRPC_API_KEY }}
         GITHUB_ACTION_SEND: ${{ inputs.send }}
+        YPRICEAPI_PASS: ${{ secrets.YPRICEAPI_PASS }}
         BE: ${{ inputs.be }}
       run: |
         python3 -m multisig_ci brownie run ${{ inputs.file }} ${{ inputs.fn }} --network ${{ inputs.network }}-main-fork 1>output.txt 2>error.txt || EXIT_CODE=$?
