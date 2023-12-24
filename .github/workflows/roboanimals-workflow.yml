@@ -211,14 +211,8 @@ jobs:
     - name: Foundry Up
       run: $HOME/.foundry/bin/foundryup
     
-    - name: Make sure Anvil exists
-      run: $HOME/.foundry/bin/anvil --help
-    
     - name: Add Anvil to Path
       run: echo "$HOME/.foundry/bin" >> $GITHUB_PATH
-
-    - name: Anvil works from path
-      run: anvil --help
 
     - name: Set up python 3.10
       uses: actions/setup-python@main
@@ -227,8 +221,7 @@ jobs:
 
     - name: Install python dependencies
       run: |
-        pip install setuptools
-        pip install wheel
+        pip install setuptools wheel
         pip install "cython<3.0" "pyyaml>=5.4.1,<6" --no-build-isolation
         pip install -r requirements-dev.txt
 
