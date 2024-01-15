@@ -216,7 +216,11 @@ jobs:
         $FOUNDRY_BIN_DIR/foundryup
     
     - name: Add Anvil to Path
-      run: echo "$HOME/.foundry/bin" >> $GITHUB_PATH
+      run: |
+        BASE_DIR=${XDG_CONFIG_HOME:-$HOME}
+        FOUNDRY_DIR=${FOUNDRY_DIR-"$BASE_DIR/.foundry"}
+        FOUNDRY_BIN_DIR="$FOUNDRY_DIR/bin"
+        echo $FOUNDRY_BIN_DIR >> $GITHUB_PATH
 
     - name: Set up python 3.10
       uses: actions/setup-python@main
