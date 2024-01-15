@@ -209,7 +209,11 @@ jobs:
         curl -L https://foundry.paradigm.xyz | bash
 
     - name: Foundry Up
-      run: $HOME/.foundry/bin/foundryup
+      run: |
+        BASE_DIR=${XDG_CONFIG_HOME:-$HOME}
+        FOUNDRY_DIR=${FOUNDRY_DIR-"$BASE_DIR/.foundry"}
+        FOUNDRY_BIN_DIR="$FOUNDRY_DIR/bin"
+        $FOUNDRY_BIN_DIR/foundryup
     
     - name: Add Anvil to Path
       run: echo "$HOME/.foundry/bin" >> $GITHUB_PATH
