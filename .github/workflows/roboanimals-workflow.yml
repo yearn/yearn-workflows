@@ -223,12 +223,12 @@ jobs:
         echo $FOUNDRY_BIN_DIR >> $GITHUB_PATH
 
     - uses: actions/setup-node@v3
-      if: ${{ inputs.network = 'arb' }}
+      if: ${{ inputs.network == 'arb' }}
       with:
         node-version: 16
 
     - name: Install ganache
-      if: ${{ inputs.network = 'arb' }}
+      if: ${{ inputs.network == 'arb' }}
       run: npm install -g ganache@7.9.0
 
     - name: Set up python 3.10
