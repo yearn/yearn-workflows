@@ -223,7 +223,7 @@ jobs:
         echo $FOUNDRY_BIN_DIR >> $GITHUB_PATH
 
     - uses: actions/setup-node@v3
-      if: ${{ inputs.network == 'arb' }}
+      if: ${{ endsWith(inputs.network, 'ganache') || inputs.network == 'arb' }}
       with:
         node-version: 16
 
