@@ -228,7 +228,7 @@ jobs:
         node-version: 16
 
     - name: Install ganache
-      if: ${{ inputs.network == 'arb' }}
+      if: ${{ endsWith(inputs.network, 'ganache') || inputs.network == 'arb' }}
       run: npm install -g ganache@7.9.0
 
     - name: Set up python 3.10
