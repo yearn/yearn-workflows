@@ -213,7 +213,7 @@ jobs:
         BASE_DIR=${XDG_CONFIG_HOME:-$HOME}
         FOUNDRY_DIR=${FOUNDRY_DIR-"$BASE_DIR/.foundry"}
         FOUNDRY_BIN_DIR="$FOUNDRY_DIR/bin"
-        $FOUNDRY_BIN_DIR/foundryup --commit f625d0fa7c51e65b4bf1e8f7931cd1c6e2e285e9
+        $FOUNDRY_BIN_DIR/foundryup
     
     - name: Add Anvil to Path
       run: |
