@@ -239,7 +239,6 @@ jobs:
     - name: Install python dependencies
       run: |
         pip install setuptools wheel
-        pip install "cython<3.0" "pyyaml>=5.4.1,<6" --no-build-isolation
         pip install -r requirements-dev.txt
 
     - name: Edit .env file
