@@ -229,7 +229,7 @@ jobs:
 
     - name: Install python dependencies
       run: |
-        pip install setuptools wheel
+        pip install --upgrade pip setuptools wheel
         pip install "cython<3.0" cmake --no-build-isolation
         pip install -r requirements-dev.txt
 
