@@ -107,6 +107,10 @@ on:
         required: true
       PAT:
         required: true
+      SAFE_AUTH_TOKEN:
+        required: false
+      SAFE_TRANSACTION_SERVICE_API_KEY:
+        required: false
 
 jobs:
   roboanimalsWorkflow:
@@ -280,6 +284,8 @@ jobs:
         YPRICEAPI_USER: ${{ secrets.YPRICEAPI_USER }}
         YPRICEAPI_PASS: ${{ secrets.YPRICEAPI_PASS }}
         BE: ${{ inputs.be }}
+        SAFE_AUTH_TOKEN: ${{ secrets.SAFE_AUTH_TOKEN }}
+        SAFE_TRANSACTION_SERVICE_API_KEY: ${{ secrets.SAFE_TRANSACTION_SERVICE_API_KEY }}
       run: |
         python3 -m multisig_ci brownie run -r ${{ inputs.file }} ${{ inputs.fn }} --network ${{ inputs.network }}-main-fork 1>output.txt 2>error.txt || EXIT_CODE=$?
         echo "brownie-exit-code=$EXIT_CODE" >> $GITHUB_OUTPUT
