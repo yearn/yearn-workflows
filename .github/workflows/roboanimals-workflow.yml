@@ -252,7 +252,7 @@ jobs:
         echo $FOUNDRY_BIN_DIR >> $GITHUB_PATH
 
     - name: Set up python 3.10
-      uses: actions/setup-python@main
+      uses: actions/setup-python@c8813ba1bc76ebf779b911ad8ffccbf2e449cb48
       with:
         python-version: '3.10'
 
@@ -559,7 +559,7 @@ jobs:
 
     - name: Telegram Alert On Infra Failure
       if: ${{ failure() && steps.failcheck.outcome == 'success' }}
-      uses: appleboy/telegram-action@master
+      uses: appleboy/telegram-action@37056891d444f558225b59f0d26b4b05c5e9828b
       with:
         disable_web_page_preview: true 
         to: ${{ inputs.failure_telegram_chat_id}}
@@ -570,7 +570,7 @@ jobs:
 
     - name: Telegram Alert On Brownie Timeout
       if: ${{ failure() && steps.timeout.outputs.brownie-timeout == 'true' }}
-      uses: appleboy/telegram-action@master
+      uses: appleboy/telegram-action@37056891d444f558225b59f0d26b4b05c5e9828b
       with:
         to: ${{ inputs.failure_telegram_chat_id }}
         token: ${{ secrets.TELEGRAM_TOKEN }}
