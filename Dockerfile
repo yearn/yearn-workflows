@@ -1,9 +1,11 @@
-FROM nikolaik/python-nodejs:python3.9-nodejs16
+FROM nikolaik/python-nodejs:python3.9-nodejs22
 RUN npm install -g ganache-cli@beta
 
 RUN pip install --no-cache-dir --force --upgrade pip setuptools
 RUN pip install --user pipx
 RUN /root/.local/bin/pipx install eth-brownie==1.17
+COPY security_overrides.sh /security_overrides.sh
+RUN /security_overrides.sh /root/.local/pipx/venvs/eth-brownie/bin/python
 RUN python -m pipx ensurepath --force
 
 RUN pip install requests
@@ -12,6 +14,7 @@ RUN python download_compilers.py
 
 COPY requirements.txt /requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
+RUN /security_overrides.sh python3
 
 COPY entrypoint.sh /entrypoint.sh
 
