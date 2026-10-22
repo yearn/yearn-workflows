@@ -3,6 +3,7 @@ ln -s /root/.solcx /github/home/.solcx
 ln -s /root/.vvm /github/home/.vvm
 
 pip install -r requirements-dev.txt
+/security_overrides.sh python3
 /root/.local/bin/brownie
 cp network-config.yaml ~/.brownie/network-config.yaml
 /root/.local/bin/brownie networks list true
